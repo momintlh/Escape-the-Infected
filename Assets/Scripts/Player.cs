@@ -7,8 +7,7 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        // Example initialization
-        Info = new PlayerInfo(PlayerType.Human, transform.position, transform.forward, new List<string>()); // Default right now, will change later
+        
     }
 
     void Update()

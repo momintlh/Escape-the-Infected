@@ -9,6 +9,7 @@ public class PlayroomManager : MonoBehaviour
     private List<PlayerInfo> playerInfos = new List<PlayerInfo>();
     private List<Transform> availableSpawnPoints = new List<Transform>();
     private bool spawnPointsInitialized = false;
+    private Dictionary<PlayerInfo, Player> playerMap = new Dictionary<PlayerInfo, Player>();
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -71,10 +72,13 @@ public class PlayroomManager : MonoBehaviour
         availableSpawnPoints.RemoveAt(0);
 
         GameObject playerObj = Instantiate(defaultPrefab, spawnPoint.position, Quaternion.identity);
-        var info = new PlayerInfo(PlayerType.Human, spawnPoint.position, spawnPoint.forward, new List<string>());
-        playerObj.GetComponent<Player>().Info = info;
+        var info = new PlayerInfo(player.id,  PlayerType.Human, spawnPoint.position, spawnPoint.forward, new List<string>());
+        Player playerScript = playerObj.GetComponent<Player>();
+        playerScript.Info = info;
 
         playerInfos.Add(info);
+        playerMap[info] = playerScript;
+
         AssignRoles();
         print($"[Unity Log] playerInfos: {playerInfos}");
     }
