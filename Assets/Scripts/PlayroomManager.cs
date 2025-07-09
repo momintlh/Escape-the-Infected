@@ -10,6 +10,10 @@ public class PlayroomManager : MonoBehaviour
     private List<Transform> availableSpawnPoints = new List<Transform>();
     private bool spawnPointsInitialized = false;
     private Dictionary<PlayerInfo, Player> playerMap = new Dictionary<PlayerInfo, Player>();
+
+    private PlayerInfo myPlayerInfo;
+    private Player myPlayerScript;
+    private bool playerJoined = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -19,7 +23,18 @@ public class PlayroomManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (playerJoined && myPlayerInfo != null)
+        {
+            var myPlayer = _playroomKit.MyPlayer();
 
+            myPlayer.SetState("position", playerMap[myPlayerInfo].transform.position);
+            foreach (var player in playerMap)
+            {
+                if (player.Key.playroomID == myPlayer.id) continue;
+                player.Value.transform.position = player.Key.Position;
+                player.Value.transform.rotation = Quaternion.LookRotation(player.Key.Direction);
+            }
+        }
     }
 
     void Awake()
@@ -42,6 +57,7 @@ public class PlayroomManager : MonoBehaviour
     }
     void spawnPlayer(PlayroomKit.Player player)
     {
+        playerJoined = true;
         // Initialize spawn points only once
         if (!spawnPointsInitialized)
         {
@@ -72,15 +88,21 @@ public class PlayroomManager : MonoBehaviour
         availableSpawnPoints.RemoveAt(0);
 
         GameObject playerObj = Instantiate(defaultPrefab, spawnPoint.position, Quaternion.identity);
-        var info = new PlayerInfo(player.id,  PlayerType.Human, spawnPoint.position, spawnPoint.forward, new List<string>());
+        var info = new PlayerInfo(player.id, PlayerType.Human, spawnPoint.position, spawnPoint.forward, new List<string>());
         Player playerScript = playerObj.GetComponent<Player>();
         playerScript.Info = info;
 
         playerInfos.Add(info);
         playerMap[info] = playerScript;
 
+        if (player.id == _playroomKit.MyPlayer().id)
+        {
+            myPlayerInfo = info;
+            myPlayerScript = playerScript;
+        }
+
         AssignRoles();
-        print($"[Unity Log] playerInfos: {playerInfos}");
+        print($"[Unity Log] playerInfos: {myPlayerInfo.playroomID}");
     }
 
     void AssignRoles()
