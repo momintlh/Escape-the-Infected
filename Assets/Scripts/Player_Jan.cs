@@ -16,7 +16,6 @@ public class Player_Jan : MonoBehaviour
 
         inputSystem.OnInteractPlayer += InputSystem_OnInteractPlayer;
     }
-
     private void Update()
     {
        // CheckForGameObjectInView();
