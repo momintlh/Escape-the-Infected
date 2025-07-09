@@ -1,25 +1,27 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public enum PlayerType
+public class Player : MonoBehaviour
 {
-    Human,
-    Monster
-}
+    public PlayerInfo Info;
 
-[System.Serializable]
-public class PlayerInfo
-{
-    public PlayerType Type;
-    public Vector3 Position;
-    public Vector3 Direction;
-    public List<string> CurrentPowerups;
-
-    public PlayerInfo(PlayerType type, Vector3 position, Vector3 direction, List<string> powerups)
+    void Start()
     {
-        Type = type;
-        Position = position;
-        Direction = direction;
-        CurrentPowerups = new List<string>(powerups);
+        // Example initialization
+        Info = new PlayerInfo(PlayerType.Human, transform.position, transform.forward, new List<string>()); // Default right now, will change later
+    }
+
+    void Update()
+    {
+        // Update the info with the current position and direction
+        Info.Position = transform.position;
+        Info.Direction = transform.forward;
+    }
+
+    // Example: Add a powerup
+    public void AddPowerup(string powerup)
+    {
+        if (!Info.CurrentPowerups.Contains(powerup))
+            Info.CurrentPowerups.Add(powerup);
     }
 }
