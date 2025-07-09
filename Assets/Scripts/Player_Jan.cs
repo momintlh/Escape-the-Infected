@@ -1,7 +1,7 @@
 using StarterAssets;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player_Jan : MonoBehaviour
 {
     [SerializeField] private Camera playerCamera;
 
