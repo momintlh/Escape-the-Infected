@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -13,6 +14,8 @@ namespace StarterAssets
 		public bool jump;
 		public bool sprint;
 		public bool interact;
+
+		public event EventHandler OnInteractPlayer;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -49,7 +52,7 @@ namespace StarterAssets
 		{
 			if (value.isPressed) 
 			{
-				Debug.Log("E is being pressed");
+				OnInteractPlayer?.Invoke(this,EventArgs.Empty);
 			}
 
 		}
