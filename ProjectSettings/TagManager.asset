@@ -6,6 +6,7 @@ TagManager:
   tags:
   - CinemachineTarget
   - Door
+  - SpawnPoint
   layers:
   - Default
   - TransparentFX

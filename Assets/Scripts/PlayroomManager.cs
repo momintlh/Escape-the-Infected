@@ -7,6 +7,9 @@ public class PlayroomManager : MonoBehaviour
     private PlayroomKit _playroomKit;
     [SerializeField] GameObject defaultPrefab;
     private List<PlayerInfo> playerInfos = new List<PlayerInfo>();
+    private List<Transform> availableSpawnPoints = new List<Transform>();
+    private bool spawnPointsInitialized = false;
+    private Dictionary<PlayerInfo, Player> playerMap = new Dictionary<PlayerInfo, Player>();
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -39,11 +42,43 @@ public class PlayroomManager : MonoBehaviour
     }
     void spawnPlayer(PlayroomKit.Player player)
     {
-        GameObject playerObj = Instantiate(defaultPrefab, Vector3.zero, Quaternion.identity);
-        var info = new PlayerInfo(PlayerType.Human, Vector3.zero, Vector3.zero, new List<string>());
-        playerObj.GetComponent<Player>().Info = info;
+        // Initialize spawn points only once
+        if (!spawnPointsInitialized)
+        {
+            availableSpawnPoints.Clear();
+            foreach (GameObject go in GameObject.FindGameObjectsWithTag("SpawnPoint"))
+            {
+                availableSpawnPoints.Add(go.transform);
+            }
+            // Shuffle the list for randomness
+            for (int i = 0; i < availableSpawnPoints.Count; i++)
+            {
+                Transform temp = availableSpawnPoints[i];
+                int randomIndex = Random.Range(i, availableSpawnPoints.Count);
+                availableSpawnPoints[i] = availableSpawnPoints[randomIndex];
+                availableSpawnPoints[randomIndex] = temp;
+            }
+            spawnPointsInitialized = true;
+        }
+
+        if (availableSpawnPoints.Count == 0)
+        {
+            Debug.LogWarning("No available spawn points left!");
+            return;
+        }
+
+        // Get and remove a spawn point from the list
+        Transform spawnPoint = availableSpawnPoints[0];
+        availableSpawnPoints.RemoveAt(0);
+
+        GameObject playerObj = Instantiate(defaultPrefab, spawnPoint.position, Quaternion.identity);
+        var info = new PlayerInfo(player.id,  PlayerType.Human, spawnPoint.position, spawnPoint.forward, new List<string>());
+        Player playerScript = playerObj.GetComponent<Player>();
+        playerScript.Info = info;
 
         playerInfos.Add(info);
+        playerMap[info] = playerScript;
+
         AssignRoles();
         print($"[Unity Log] playerInfos: {playerInfos}");
     }
