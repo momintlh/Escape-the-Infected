@@ -1,28 +1,34 @@
 using StarterAssets;
 using UnityEngine;
+using System.Collections;
+
 
 public class Player_Jan : MonoBehaviour
 {
     [SerializeField] private Camera playerCamera;
     [SerializeField] private GameObject flashBang;
     [SerializeField] private Transform flashBangPos;
+    [SerializeField] private Transform adrenalineShotPos;
     [SerializeField] private Transform flashLight;
 
 
     private float throwForce = 10f;
     private float interactDistance = 3f;
     private StarterAssetsInputs inputSystem;
+    private FirstPersonController firstPersonController;
     private bool isDoorOpen;
-    private bool flashLightEquiped;
-    private bool flashBangEquiped;
+    private bool isAdrenalineActive;
+
 
     private void Start()
     {
         inputSystem = GetComponent<StarterAssetsInputs>();
+        firstPersonController = GetComponent<FirstPersonController>();
         AssignEvents();
 
         flashLight.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
+        adrenalineShotPos.gameObject.SetActive(false);
     }
 
     private void AssignEvents()
@@ -31,17 +37,27 @@ public class Player_Jan : MonoBehaviour
         inputSystem.OnUseItemPlayer += InputSystem_OnUseItemPlayer;
         inputSystem.OnSlotChange1 += InputSystem_OnSlotChange1;
         inputSystem.OnSlotChange2 += InputSystem_OnSlotChange2;
+        inputSystem.OnSlotChange3 += InputSystem_OnSlotChange3;
+    }
+
+    private void InputSystem_OnSlotChange3(object sender, System.EventArgs e)
+    {
+        flashLight.gameObject.SetActive(false);
+        flashBangPos.gameObject.SetActive(false);
+        adrenalineShotPos.gameObject.SetActive(true);
     }
 
     private void InputSystem_OnSlotChange2(object sender, System.EventArgs e)
     {
         flashLight.gameObject.SetActive(false);
+        adrenalineShotPos.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(true);
     }
 
     private void InputSystem_OnSlotChange1(object sender, System.EventArgs e)
     {
         flashLight.gameObject.SetActive(true);
+        adrenalineShotPos.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
     }
 
@@ -59,15 +75,14 @@ public class Player_Jan : MonoBehaviour
                 flashRb.AddForce(flashBangPos.forward * throwForce, ForceMode.VelocityChange);
             }
         }
+        else if(adrenalineShotPos.gameObject.activeSelf)
+        {
+            StartCoroutine(UseAdrenalineShot());
+        }
         else
         {
             Debug.Log("Flash Bang is not equiped");
         }
-    }
-
-    private void Update()
-    {
-        // CheckForGameObjectInView();
     }
 
     private void CheckForGameObjectInView()
@@ -94,6 +109,26 @@ public class Player_Jan : MonoBehaviour
     private void InputSystem_OnInteractPlayer(object sender, System.EventArgs e)
     {
         CheckForGameObjectInView();
+    }
+
+    IEnumerator UseAdrenalineShot()
+    {
+        if (isAdrenalineActive)
+        {
+            yield break;
+        }
+        isAdrenalineActive = true;
+        adrenalineShotPos.gameObject.GetComponentInChildren<Animator>().SetTrigger("UseShot");
+        float original = firstPersonController.SprintSpeed;
+        float speedBoost = 4f;
+
+        firstPersonController.SprintSpeed += speedBoost;
+
+        yield return new WaitForSeconds(3.0f);
+
+        firstPersonController.SprintSpeed = original;
+        
+        isAdrenalineActive = false;
     }
 
 }
