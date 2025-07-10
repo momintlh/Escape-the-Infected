@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mockMode: 1
-  insertCoinCaller: {fileID: 0}
+  insertCoinCaller: {fileID: 1824217503633254899}
   enableLogs: 0
 --- !u!1 &5935941862803782869
 GameObject:

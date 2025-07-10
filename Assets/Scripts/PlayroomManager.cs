@@ -3,11 +3,16 @@ using Playroom;
 using System.Collections.Generic;
 using System.Linq;
 using StarterAssets;
+using Cinemachine;
+using UnityEngine.InputSystem;
 
 public class PlayroomManager : MonoBehaviour
 {
     private PlayroomKit _playroomKit;
-    [SerializeField] GameObject defaultPrefab;
+    [SerializeField]
+    GameObject defaultPrefab;
+
+    private CinemachineVirtualCamera virtualCamera;
     private List<Vector3> availableSpawnPoints = new List<Vector3>();
     private bool spawnPointsInitialized = false;
     private static readonly List<PlayroomKit.Player> players = new();
@@ -25,12 +30,12 @@ public class PlayroomManager : MonoBehaviour
 
     void Update()
     {
-        
+
     }
 
     void FixedUpdate()
     {
-        if (playerJoined && myPlayerID != null)
+        if (playerJoined)
         {
             var myPlayer = _playroomKit.MyPlayer();
             int myIndex = players.IndexOf(myPlayer);
@@ -38,20 +43,13 @@ public class PlayroomManager : MonoBehaviour
             // Add bounds checking to prevent ArgumentOutOfRangeException
             if (myIndex >= 0 && myIndex < playerGameObjects.Count && myIndex < players.Count)
             {
-                var myObj = playerGameObjects[myIndex];
-                var fpc = myObj.GetComponentInChildren<FirstPersonController>();
-                if (fpc != null)
-                {
-                    fpc.JumpAndGravity();
-                    fpc.GroundedCheck();
-                    fpc.Move();
-                    myPlayer.SetState("position", myObj.transform.position);
-                    myPlayer.SetState("direction", myObj.transform.forward);
-                }
-                else
-                {
-                    Debug.LogWarning("FirstPersonController not found on player object!");
-                }
+                var myObj = PlayerDict[myPlayer.id];
+                var fpc = myObj.GetComponent<FirstPersonController>();
+                fpc.JumpAndGravity();
+                fpc.GroundedCheck();
+                fpc.Move();
+                myPlayer.SetState("position", playerGameObjects[myIndex].transform.position);
+                myPlayer.SetState("direction", playerGameObjects[myIndex].transform.forward);
             }
             else
             {
@@ -62,7 +60,7 @@ public class PlayroomManager : MonoBehaviour
             // Update remote players' transforms from their PlayerInfo
             for (int i = 0; i < players.Count; i++)
             {
-                if (players[i] == myPlayer) continue;
+                if (_playroomKit.MyPlayer().id == players[i].id) continue;
                 var remotePlayer = players[i];
                 var remoteObj = PlayerDict[remotePlayer.id];
                 // Get position/direction from remotePlayer's state
@@ -74,6 +72,20 @@ public class PlayroomManager : MonoBehaviour
             }
         }
     }
+
+    void LateUpdate()
+    {
+        if (playerJoined)
+        {
+        var myPlayer = _playroomKit.MyPlayer();
+            int myIndex = players.IndexOf(myPlayer);
+        
+        var myObj = PlayerDict[myPlayer.id];
+        var fpc = myObj.GetComponent<FirstPersonController>();
+        fpc.CameraRotation();
+        }   
+    }
+
     void Awake()
     {
         _playroomKit = new PlayroomKit();
@@ -87,9 +99,16 @@ public class PlayroomManager : MonoBehaviour
             defaultPlayerStates = new Dictionary<string, object>(),
         }, () =>
         {
-            _playroomKit.SetState("spawnPoints", SetAvailableSpawnPoints());   
             _playroomKit.OnPlayerJoin(spawnPlayer);
             print($"[Unity Log] isHost: {_playroomKit.IsHost()}"); 
+
+        foreach (var kvp in PlayerDict)
+        {
+            Debug.Log($"player id: {kvp.Key}");
+            Debug.Log($"player object: {kvp.Value}");
+        }
+
+
         });
     }
 
@@ -99,17 +118,30 @@ public class PlayroomManager : MonoBehaviour
         
         GameObject playerObj;
         if (_playroomKit.IsHost())
-        playerObj = Instantiate(defaultPrefab, new Vector3(0, 2, 0), Quaternion.identity);
+        {
+            playerObj = Instantiate(defaultPrefab, new Vector3(0, 2, 0), Quaternion.identity);
+        }
         else
-        playerObj = Instantiate(defaultPrefab, new Vector3(0,2, 5), Quaternion.identity);
-        var info = new PlayerInfo(PlayerType.Human, playerObj.transform.position, Vector3.zero, new List<string>());
-        Player playerScript = playerObj.GetComponent<Player>();
-        playerScript.Info = info;
+        {
+            playerObj = Instantiate(defaultPrefab, new Vector3(0, 2, 5), Quaternion.identity);
+        }
+        // var info = new PlayerInfo(PlayerType.Human, playerObj.transform.position, Vector3.zero, new List<string>());
+        //Player playerScript = playerObj.GetComponent<Player>();
+        //playerScript.Info = info;
 
         playerGameObjects.Add(playerObj);
         players.Add(player);
-        PlayerDict[player.id] = playerObj;
+        PlayerDict.Add(player.id, playerObj);
+        virtualCamera = PlayerDict[player.id].GetComponentInChildren<CinemachineVirtualCamera>();
 
+        bool isLocalPlayer = (player.id == _playroomKit.MyPlayer().id);
+        var input = playerObj.GetComponent<PlayerInput>();
+        if (!isLocalPlayer && input != null)
+        {
+            Destroy(input); // Prevent remote player from capturing input
+            Destroy(virtualCamera);
+        }
+        player.OnQuit(RemovePlayer);
     }
 
     void AssignRoles()
@@ -118,32 +150,32 @@ public class PlayroomManager : MonoBehaviour
         int monsterIndex = Random.Range(0, playerGameObjects.Count);
         for (int i = 0; i < playerGameObjects.Count; i++)
         {
-            var playerScript = playerGameObjects[i].GetComponent<Player>();
-            if (playerScript != null && playerScript.Info != null)
-            {
-                playerScript.Info.Type = (i == monsterIndex) ? PlayerType.Monster : PlayerType.Human;
-            }
+            // var playerScript = playerGameObjects[i].GetComponent<Player>();
+            // if (playerScript != null && playerScript.Info != null)
+            // {
+            //     playerScript.Info.Type = (i == monsterIndex) ? PlayerType.Monster : PlayerType.Human;
+            // }
         }
     }
 
-    public string SetAvailableSpawnPoints()
-    {
-        if (!spawnPointsInitialized)
-        {
-            availableSpawnPoints.Clear();
-            foreach (GameObject go in GameObject.FindGameObjectsWithTag("SpawnPoint"))
-            {
-                Vector3 pos = go.transform.position;
-                // Only add if not already in the list (manual duplicate checking)
-                if (!availableSpawnPoints.Contains(pos))
-                {
-                    availableSpawnPoints.Add(pos);
-                }
-            }
-            spawnPointsInitialized = true;
-        }
+    //  public string SetAvailableSpawnPoints()
+    // {
+    //     if (!spawnPointsInitialized)
+    //     {
+    //         availableSpawnPoints.Clear();
+    //         foreach (GameObject go in GameObject.FindGameObjectsWithTag("SpawnPoint"))
+    //         {
+    //             Vector3 pos = go.transform.position;
+    //             // Only add if not already in the list (manual duplicate checking)
+    //             if (!availableSpawnPoints.Contains(pos))
+    //             {
+    //                 availableSpawnPoints.Add(pos);
+    //             }
+    //         }
+    //         spawnPointsInitialized = true;
+    //     }
         
-    }
+    // }
 
     // Helper class for JSON serialization
     [System.Serializable]
