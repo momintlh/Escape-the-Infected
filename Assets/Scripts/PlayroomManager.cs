@@ -63,8 +63,8 @@ public class PlayroomManager : MonoBehaviour
             for (int i = 0; i < players.Count; i++)
             {
                 if (players[i] == myPlayer) continue;
-                var remoteObj = playerGameObjects[i];
                 var remotePlayer = players[i];
+                var remoteObj = PlayerDict[remotePlayer.id];
                 // Get position/direction from remotePlayer's state
                 Vector3 pos = remotePlayer.GetState<Vector3>("position");
                 Vector3 dir = remotePlayer.GetState<Vector3>("direction");
@@ -97,38 +97,12 @@ public class PlayroomManager : MonoBehaviour
     {
         playerJoined = true;
         
-        // Get spawn points as JSON string from PlayroomKit state
-        string spawnPointsJson = _playroomKit.GetState<string>("spawnPoints");
-        Debug.Log($"Player {player.id} - SpawnPoints JSON: {spawnPointsJson}");
-        
-        // Deserialize the JSON string to List<Vector3>
-        if (!string.IsNullOrEmpty(spawnPointsJson))
-        {
-            availableSpawnPoints = JsonUtility.FromJson<SpawnPointsData>(spawnPointsJson).spawnPoints;
-            Debug.Log($"Player {player.id} - Available spawn points count: {availableSpawnPoints.Count}");
-        }
+        GameObject playerObj;
+        if (_playroomKit.IsHost())
+        playerObj = Instantiate(defaultPrefab, new Vector3(0, 2, 0), Quaternion.identity);
         else
-        {
-            availableSpawnPoints = new List<Vector3>();
-            Debug.Log($"Player {player.id} - No spawn points JSON found, using empty list");
-        }
-        
-        Vector3 spawnPosition;
-        if (availableSpawnPoints == null || availableSpawnPoints.Count == 0)
-        {
-            Debug.LogWarning($"Player {player.id} - No spawn points available, using Vector3.zero");
-            spawnPosition = Vector3.zero;
-        }
-        else
-        {
-            spawnPosition = availableSpawnPoints[0];
-            Debug.Log($"Player {player.id} - Using spawn position: {spawnPosition}");
-            availableSpawnPoints.RemoveAt(0);
-            Debug.Log($"Player {player.id} - Remaining spawn points: {availableSpawnPoints.Count}");
-        }
-        
-        GameObject playerObj = Instantiate(defaultPrefab, spawnPosition, Quaternion.identity);
-        var info = new PlayerInfo(PlayerType.Human, spawnPosition, Vector3.zero, new List<string>());
+        playerObj = Instantiate(defaultPrefab, new Vector3(0,2, 5), Quaternion.identity);
+        var info = new PlayerInfo(PlayerType.Human, playerObj.transform.position, Vector3.zero, new List<string>());
         Player playerScript = playerObj.GetComponent<Player>();
         playerScript.Info = info;
 
@@ -136,11 +110,6 @@ public class PlayroomManager : MonoBehaviour
         players.Add(player);
         PlayerDict[player.id] = playerObj;
 
-        // Serialize back to JSON string for PlayroomKit
-        SpawnPointsData data = new SpawnPointsData { spawnPoints = availableSpawnPoints };
-        string updatedJson = JsonUtility.ToJson(data);
-        Debug.Log($"Player {player.id} - Updated spawn points JSON: {updatedJson}");
-        _playroomKit.SetState("spawnPoints", updatedJson);
     }
 
     void AssignRoles()
@@ -174,9 +143,6 @@ public class PlayroomManager : MonoBehaviour
             spawnPointsInitialized = true;
         }
         
-        // Serialize to JSON string for PlayroomKit
-        SpawnPointsData data = new SpawnPointsData { spawnPoints = availableSpawnPoints };
-        return JsonUtility.ToJson(data);
     }
 
     // Helper class for JSON serialization
