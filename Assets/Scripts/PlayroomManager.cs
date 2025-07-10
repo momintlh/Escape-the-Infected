@@ -1,119 +1,208 @@
 using UnityEngine;
 using Playroom;
 using System.Collections.Generic;
+using System.Linq;
+using StarterAssets;
+
 public class PlayroomManager : MonoBehaviour
 {
-
     private PlayroomKit _playroomKit;
     [SerializeField] GameObject defaultPrefab;
-    private List<PlayerInfo> playerInfos = new List<PlayerInfo>();
-    private List<Transform> availableSpawnPoints = new List<Transform>();
+    private List<Vector3> availableSpawnPoints = new List<Vector3>();
     private bool spawnPointsInitialized = false;
-    private Dictionary<PlayerInfo, Player> playerMap = new Dictionary<PlayerInfo, Player>();
+    private static readonly List<PlayroomKit.Player> players = new();
+    private static readonly List<GameObject> playerGameObjects = new();
+    private static Dictionary<string, GameObject> PlayerDict = new();
 
-    private PlayerInfo myPlayerInfo;
+    private string myPlayerID;
     private Player myPlayerScript;
     private bool playerJoined = false;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
-    InitializePlayroom();
+        InitializePlayroom();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (playerJoined && myPlayerInfo != null)
+        
+    }
+
+    void FixedUpdate()
+    {
+        if (playerJoined && myPlayerID != null)
         {
             var myPlayer = _playroomKit.MyPlayer();
-
-            myPlayer.SetState("position", playerMap[myPlayerInfo].transform.position);
-            foreach (var player in playerMap)
+            int myIndex = players.IndexOf(myPlayer);
+            
+            // Add bounds checking to prevent ArgumentOutOfRangeException
+            if (myIndex >= 0 && myIndex < playerGameObjects.Count && myIndex < players.Count)
             {
-                if (player.Key.playroomID == myPlayer.id) continue;
-                player.Value.transform.position = player.Key.Position;
-                player.Value.transform.rotation = Quaternion.LookRotation(player.Key.Direction);
+                var myObj = playerGameObjects[myIndex];
+                var fpc = myObj.GetComponentInChildren<FirstPersonController>();
+                if (fpc != null)
+                {
+                    fpc.JumpAndGravity();
+                    fpc.GroundedCheck();
+                    fpc.Move();
+                    myPlayer.SetState("position", myObj.transform.position);
+                    myPlayer.SetState("direction", myObj.transform.forward);
+                }
+                else
+                {
+                    Debug.LogWarning("FirstPersonController not found on player object!");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"Invalid player index: {myIndex}, players count: {players.Count}, gameObjects count: {playerGameObjects.Count}");
+            }
+
+
+            // Update remote players' transforms from their PlayerInfo
+            for (int i = 0; i < players.Count; i++)
+            {
+                if (players[i] == myPlayer) continue;
+                var remoteObj = playerGameObjects[i];
+                var remotePlayer = players[i];
+                // Get position/direction from remotePlayer's state
+                Vector3 pos = remotePlayer.GetState<Vector3>("position");
+                Vector3 dir = remotePlayer.GetState<Vector3>("direction");
+                remoteObj.transform.position = pos;
+                if (dir != Vector3.zero)
+                    remoteObj.transform.rotation = Quaternion.LookRotation(dir);
             }
         }
     }
-
     void Awake()
     {
         _playroomKit = new PlayroomKit();
     }
+
     void InitializePlayroom()
     {
         _playroomKit.InsertCoin(new InitOptions()
         {
             maxPlayersPerRoom = 4,
-            defaultPlayerStates = new() {
-        },
+            defaultPlayerStates = new Dictionary<string, object>(),
         }, () =>
         {
+            _playroomKit.SetState("spawnPoints", SetAvailableSpawnPoints());   
             _playroomKit.OnPlayerJoin(spawnPlayer);
-            print($"[Unity Log] isHost: {_playroomKit.IsHost()}");
-
+            print($"[Unity Log] isHost: {_playroomKit.IsHost()}"); 
         });
     }
+
     void spawnPlayer(PlayroomKit.Player player)
     {
         playerJoined = true;
-        // Initialize spawn points only once
+        
+        // Get spawn points as JSON string from PlayroomKit state
+        string spawnPointsJson = _playroomKit.GetState<string>("spawnPoints");
+        Debug.Log($"Player {player.id} - SpawnPoints JSON: {spawnPointsJson}");
+        
+        // Deserialize the JSON string to List<Vector3>
+        if (!string.IsNullOrEmpty(spawnPointsJson))
+        {
+            availableSpawnPoints = JsonUtility.FromJson<SpawnPointsData>(spawnPointsJson).spawnPoints;
+            Debug.Log($"Player {player.id} - Available spawn points count: {availableSpawnPoints.Count}");
+        }
+        else
+        {
+            availableSpawnPoints = new List<Vector3>();
+            Debug.Log($"Player {player.id} - No spawn points JSON found, using empty list");
+        }
+        
+        Vector3 spawnPosition;
+        if (availableSpawnPoints == null || availableSpawnPoints.Count == 0)
+        {
+            Debug.LogWarning($"Player {player.id} - No spawn points available, using Vector3.zero");
+            spawnPosition = Vector3.zero;
+        }
+        else
+        {
+            spawnPosition = availableSpawnPoints[0];
+            Debug.Log($"Player {player.id} - Using spawn position: {spawnPosition}");
+            availableSpawnPoints.RemoveAt(0);
+            Debug.Log($"Player {player.id} - Remaining spawn points: {availableSpawnPoints.Count}");
+        }
+        
+        GameObject playerObj = Instantiate(defaultPrefab, spawnPosition, Quaternion.identity);
+        var info = new PlayerInfo(PlayerType.Human, spawnPosition, Vector3.zero, new List<string>());
+        Player playerScript = playerObj.GetComponent<Player>();
+        playerScript.Info = info;
+
+        playerGameObjects.Add(playerObj);
+        players.Add(player);
+        PlayerDict[player.id] = playerObj;
+
+        // Serialize back to JSON string for PlayroomKit
+        SpawnPointsData data = new SpawnPointsData { spawnPoints = availableSpawnPoints };
+        string updatedJson = JsonUtility.ToJson(data);
+        Debug.Log($"Player {player.id} - Updated spawn points JSON: {updatedJson}");
+        _playroomKit.SetState("spawnPoints", updatedJson);
+    }
+
+    void AssignRoles()
+    {
+        if (playerGameObjects.Count == 0) return;
+        int monsterIndex = Random.Range(0, playerGameObjects.Count);
+        for (int i = 0; i < playerGameObjects.Count; i++)
+        {
+            var playerScript = playerGameObjects[i].GetComponent<Player>();
+            if (playerScript != null && playerScript.Info != null)
+            {
+                playerScript.Info.Type = (i == monsterIndex) ? PlayerType.Monster : PlayerType.Human;
+            }
+        }
+    }
+
+    public string SetAvailableSpawnPoints()
+    {
         if (!spawnPointsInitialized)
         {
             availableSpawnPoints.Clear();
             foreach (GameObject go in GameObject.FindGameObjectsWithTag("SpawnPoint"))
             {
-                availableSpawnPoints.Add(go.transform);
-            }
-            // Shuffle the list for randomness
-            for (int i = 0; i < availableSpawnPoints.Count; i++)
-            {
-                Transform temp = availableSpawnPoints[i];
-                int randomIndex = Random.Range(i, availableSpawnPoints.Count);
-                availableSpawnPoints[i] = availableSpawnPoints[randomIndex];
-                availableSpawnPoints[randomIndex] = temp;
+                Vector3 pos = go.transform.position;
+                // Only add if not already in the list (manual duplicate checking)
+                if (!availableSpawnPoints.Contains(pos))
+                {
+                    availableSpawnPoints.Add(pos);
+                }
             }
             spawnPointsInitialized = true;
         }
-
-        if (availableSpawnPoints.Count == 0)
-        {
-            Debug.LogWarning("No available spawn points left!");
-            return;
-        }
-
-        // Get and remove a spawn point from the list
-        Transform spawnPoint = availableSpawnPoints[0];
-        availableSpawnPoints.RemoveAt(0);
-
-        GameObject playerObj = Instantiate(defaultPrefab, spawnPoint.position, Quaternion.identity);
-        var info = new PlayerInfo(player.id, PlayerType.Human, spawnPoint.position, spawnPoint.forward, new List<string>());
-        Player playerScript = playerObj.GetComponent<Player>();
-        playerScript.Info = info;
-
-        playerInfos.Add(info);
-        playerMap[info] = playerScript;
-
-        if (player.id == _playroomKit.MyPlayer().id)
-        {
-            myPlayerInfo = info;
-            myPlayerScript = playerScript;
-        }
-
-        AssignRoles();
-        print($"[Unity Log] playerInfos: {myPlayerInfo.playroomID}");
+        
+        // Serialize to JSON string for PlayroomKit
+        SpawnPointsData data = new SpawnPointsData { spawnPoints = availableSpawnPoints };
+        return JsonUtility.ToJson(data);
     }
 
-    void AssignRoles()
+    // Helper class for JSON serialization
+    [System.Serializable]
+    public class SpawnPointsData
     {
-        if (playerInfos.Count == 0) return;
+        public List<Vector3> spawnPoints;
+    }
 
-        int monsterIndex = Random.Range(0, playerInfos.Count);
 
-        for (int i = 0; i < playerInfos.Count; i++)
+    public static void RemovePlayer(string playerID)
+    {
+        if (PlayerDict.TryGetValue(playerID, out GameObject playerObj))
         {
-            playerInfos[i].Type = (i == monsterIndex) ? PlayerType.Monster : PlayerType.Human;
+            int index = playerGameObjects.IndexOf(playerObj);
+            if (index >= 0)
+            {
+                playerGameObjects.RemoveAt(index);
+                players.RemoveAt(index);
+            }
+            PlayerDict.Remove(playerID);
+            Object.Destroy(playerObj);
+        }
+        else
+        {
+            Debug.LogWarning("Player is not in dictionary");
         }
     }
 }
