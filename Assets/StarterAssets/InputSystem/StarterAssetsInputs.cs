@@ -8,14 +8,17 @@ namespace StarterAssets
 {
 	public class StarterAssetsInputs : MonoBehaviour
 	{
+
 		[Header("Character Input Values")]
 		public Vector2 move;
 		public Vector2 look;
 		public bool jump;
 		public bool sprint;
 		public bool interact;
+		public bool interaction;
 
 		public event EventHandler OnInteractPlayer;
+		public event EventHandler OnInteractionPlayer;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -56,6 +59,13 @@ namespace StarterAssets
 			}
 
 		}
+		public void OnInteraction(InputValue value)
+		{
+			if(value.isPressed)
+			{
+				OnInteractionPlayer?.Invoke(this,EventArgs.Empty);
+			}
+		}
 #endif
 
 
@@ -82,6 +92,11 @@ namespace StarterAssets
 		public void InteractInput(bool newInteractState)
 		{
 			interact = newInteractState;
+		}
+		
+		public void InteractionInput(bool newInteractionState)
+		{
+			interaction = newInteractionState;
 		}
 		
 		private void OnApplicationFocus(bool hasFocus)
