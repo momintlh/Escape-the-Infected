@@ -95,20 +95,20 @@ public class PlayroomManager : MonoBehaviour
     {
         _playroomKit.InsertCoin(new InitOptions()
         {
+            gameId =  "vWV6hHHXlrUgYGzS3GW0",
             maxPlayersPerRoom = 4,
             defaultPlayerStates = new Dictionary<string, object>(),
         }, () =>
         {
             _playroomKit.OnPlayerJoin(spawnPlayer);
-            print($"[Unity Log] isHost: {_playroomKit.IsHost()}"); 
+            print($"[Unity Log] isHost: {_playroomKit.IsHost()}");
+            _playroomKit.RpcRegister("toggle-flashlight", HandleToggleFlashlight);  
 
         foreach (var kvp in PlayerDict)
         {
             Debug.Log($"player id: {kvp.Key}");
             Debug.Log($"player object: {kvp.Value}");
         }
-
-
         });
     }
 
@@ -157,7 +157,7 @@ public class PlayroomManager : MonoBehaviour
             // }
         }
     }
-
+ 
     //  public string SetAvailableSpawnPoints()
     // {
     //     if (!spawnPointsInitialized)
@@ -202,6 +202,10 @@ public class PlayroomManager : MonoBehaviour
         {
             Debug.LogWarning("Player is not in dictionary");
         }
+    }
+    public void HandleToggleFlashlight(string data, string sender)
+    {
+        PlayerDict[sender].GetComponentInChildren<FlashLight>().ToggleFlashlight();
     }
 }
 

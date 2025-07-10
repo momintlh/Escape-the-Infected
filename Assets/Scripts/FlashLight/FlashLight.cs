@@ -1,5 +1,6 @@
 using StarterAssets;
 using UnityEngine;
+using PlayroomKit;
 
 public class FlashLight : MonoBehaviour
 {
@@ -21,6 +22,11 @@ public class FlashLight : MonoBehaviour
     }
 
     private void StarterAssets_OnInteractionPlayer(object sender, System.EventArgs e)
+    {
+        prk.RpcCall("toggle-flashlight", 0, PlayroomKit.RpcMode.ALL);
+    }
+
+    public void ToggleFlashlight(PlayroomKit prk)
     {
         if (isOn) 
         {
