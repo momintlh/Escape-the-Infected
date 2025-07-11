@@ -1,5 +1,6 @@
 using StarterAssets;
 using UnityEngine;
+using Playroom;
 
 public class Player_Jan : MonoBehaviour
 {
@@ -8,13 +9,14 @@ public class Player_Jan : MonoBehaviour
     [SerializeField] private Transform flashBangPos;
     [SerializeField] private Transform flashLight;
 
-
     private float throwForce = 10f;
     private float interactDistance = 3f;
     private StarterAssetsInputs inputSystem;
     private bool isDoorOpen;
     private bool flashLightEquiped;
     private bool flashBangEquiped;
+    PlayroomKit _playroomKit;
+
 
     private void Start()
     {
@@ -23,6 +25,8 @@ public class Player_Jan : MonoBehaviour
 
         flashLight.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
+        _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
+
     }
 
     private void AssignEvents()
@@ -37,12 +41,14 @@ public class Player_Jan : MonoBehaviour
     {
         flashLight.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(true);
+        _playroomKit.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnSlotChange1(object sender, System.EventArgs e)
     {
         flashLight.gameObject.SetActive(true);
         flashBangPos.gameObject.SetActive(false);
+        _playroomKit.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnUseItemPlayer(object sender, System.EventArgs e)
@@ -96,4 +102,8 @@ public class Player_Jan : MonoBehaviour
         CheckForGameObjectInView();
     }
 
+    public GameObject GetFlashLight()
+    {
+        return flashLight.gameObject;
+    }
 }

@@ -1,13 +1,15 @@
 using StarterAssets;
 using UnityEngine;
-using PlayroomKit;
+using Playroom;
+
 
 public class FlashLight : MonoBehaviour
 {
     [SerializeField] private GameObject ON;
     [SerializeField] private GameObject OFF;
-    private bool isOn;
+    public bool isOn;
 
+    PlayroomKit _playroomKit;
     [SerializeField] private StarterAssetsInputs starterAssets;
     
     private void Start()
@@ -18,20 +20,22 @@ public class FlashLight : MonoBehaviour
         isOn = false;
 
         starterAssets.OnInteractionPlayer += StarterAssets_OnInteractionPlayer;
-        
+        _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
     }
 
     private void StarterAssets_OnInteractionPlayer(object sender, System.EventArgs e)
     {
-        prk.RpcCall("toggle-flashlight", 0, PlayroomKit.RpcMode.ALL);
+        ToggleFlashlight();
+        _playroomKit.RpcCall("ToggleFlashlight", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
-    public void ToggleFlashlight(PlayroomKit prk)
+    public void ToggleFlashlight()
     {
         if (isOn) 
         {
             ON.SetActive(false);
             OFF.SetActive(true);
+
         }
         if (!isOn)
         {

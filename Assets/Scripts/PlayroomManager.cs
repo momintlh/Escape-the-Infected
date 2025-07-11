@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 
 public class PlayroomManager : MonoBehaviour
 {
+    public static PlayroomManager Instance{get; private set;}
     private PlayroomKit _playroomKit;
     [SerializeField]
     GameObject defaultPrefab;
@@ -23,6 +24,11 @@ public class PlayroomManager : MonoBehaviour
     private Player myPlayerScript;
     private bool playerJoined = false;
 
+    void Awake()
+    {
+        _playroomKit = new PlayroomKit();
+        Instance = this;
+    }
     void Start()
     {
         InitializePlayroom();
@@ -48,8 +54,9 @@ public class PlayroomManager : MonoBehaviour
                 fpc.JumpAndGravity();
                 fpc.GroundedCheck();
                 fpc.Move();
-                myPlayer.SetState("position", playerGameObjects[myIndex].transform.position);
-                myPlayer.SetState("direction", playerGameObjects[myIndex].transform.forward);
+                myPlayer.SetState("position", myObj.transform.position);
+                myPlayer.SetState("direction", myObj.transform.forward);
+                //myPlayer.SetState("flashlight", myObj.GetComponentInChildren<FlashLight>(true).isOn);
             }
             else
             {
@@ -62,10 +69,18 @@ public class PlayroomManager : MonoBehaviour
             {
                 if (_playroomKit.MyPlayer().id == players[i].id) continue;
                 var remotePlayer = players[i];
-                var remoteObj = PlayerDict[remotePlayer.id];
+                GameObject remoteObj;
+                bool found = PlayerDict.TryGetValue(remotePlayer.id, out remoteObj);
                 // Get position/direction from remotePlayer's state
                 Vector3 pos = remotePlayer.GetState<Vector3>("position");
                 Vector3 dir = remotePlayer.GetState<Vector3>("direction");
+                // bool flashLight = remotePlayer.GetState<bool>("flashlight");
+                // Debug.Log("[Unity Log] Flashlight state: " + flashLight);
+                // Debug.Log("[Unity Log] Local flashlight: " + remoteObj.GetComponentInChildren<FlashLight>(true).isOn);
+                // if (flashLight != remoteObj.GetComponentInChildren<FlashLight>(true).isOn)
+                // {
+                //     remoteObj.GetComponentInChildren<FlashLight>(true).ToggleFlashlight();
+                // }
                 remoteObj.transform.position = pos;
                 if (dir != Vector3.zero)
                     remoteObj.transform.rotation = Quaternion.LookRotation(dir);
@@ -86,11 +101,6 @@ public class PlayroomManager : MonoBehaviour
         }   
     }
 
-    void Awake()
-    {
-        _playroomKit = new PlayroomKit();
-    }
-
     void InitializePlayroom()
     {
         _playroomKit.InsertCoin(new InitOptions()
@@ -102,14 +112,26 @@ public class PlayroomManager : MonoBehaviour
         {
             _playroomKit.OnPlayerJoin(spawnPlayer);
             print($"[Unity Log] isHost: {_playroomKit.IsHost()}");
-            _playroomKit.RpcRegister("toggle-flashlight", HandleToggleFlashlight);  
-
-        foreach (var kvp in PlayerDict)
-        {
-            Debug.Log($"player id: {kvp.Key}");
-            Debug.Log($"player object: {kvp.Value}");
-        }
+            _playroomKit.RpcRegister("ToggleFlashlight", HandleToggleFlashlight);
+            _playroomKit.RpcRegister("FlashlightActive", HandleFlashlightActive);
         });
+    }
+
+    public void HandleFlashlightActive(string data, string sender)
+    {
+        var senderObj = PlayerDict[data];
+        GameObject flashlight = senderObj.GetComponent<Player_Jan>().GetFlashLight();
+        if (flashlight.activeSelf)
+        flashlight.SetActive(false);
+        else
+        flashlight.SetActive(true);
+    }
+
+    public void HandleToggleFlashlight(string data, string sender)
+    {
+        var senderObj = PlayerDict[data];
+        senderObj.GetComponentInChildren<FlashLight>(true).ToggleFlashlight();
+        Debug.Log(senderObj.GetComponentInChildren<FlashLight>(true).isOn);
     }
 
     void spawnPlayer(PlayroomKit.Player player)
@@ -203,9 +225,10 @@ public class PlayroomManager : MonoBehaviour
             Debug.LogWarning("Player is not in dictionary");
         }
     }
-    public void HandleToggleFlashlight(string data, string sender)
+
+    public PlayroomKit GetPlayroomKit()
     {
-        PlayerDict[sender].GetComponentInChildren<FlashLight>().ToggleFlashlight();
+        return _playroomKit;
     }
 }
 

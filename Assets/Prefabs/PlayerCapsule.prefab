@@ -348,7 +348,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abf93b4f9f04ce946a75f7b79084c53f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerCamera: {fileID: 0}
+  playerCamera: {fileID: 9005220659476430821, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
   flashBang: {fileID: 4611506900736961076, guid: 8712dcea02cd09b439c235519ac999ed, type: 3}
   flashBangPos: {fileID: 3336731630481828007}
   flashLight: {fileID: 6584420199776138305}
