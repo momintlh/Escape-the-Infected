@@ -40,7 +40,7 @@ public class PlayroomManager : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (playerJoined && spawned)
+        if (playerJoined)
         {
             var myPlayer = _playroomKit.MyPlayer();
             int myIndex = players.IndexOf(myPlayer);
@@ -108,26 +108,26 @@ public class PlayroomManager : MonoBehaviour
             _playroomKit.RpcRegister("FlashbangActive", HandleFlashbangActive);
             _playroomKit.RpcRegister("FlashbangThrow", HandleFlashbangThrow);
 
-            if (_playroomKit.IsHost())
-            {
-                List<Vector3> spawnPoints = GetRandomizedSpawnPoints();
-                for (int i = 0; i < players.Count; i++)
-                {
-                    var player = players[i];
-                    GameObject playerObj = PlayerDict[player.id];
-                    playerObj.transform.position = spawnPoints[i];
-                    players[i].SetState("position", spawnPoints[i]);
-                    spawned = true;
-                }
-            }
-            while (!_playroomKit.IsHost() || !spawned)
-            {
-                var myPlayer = _playroomKit.MyPlayer();
-                GameObject myObj = PlayerDict[myPlayer.id];
-                Vector3 spawnPosition = myPlayer.GetState<Vector3>("position");
-                myObj.transform.position = spawnPosition;
-                spawned = true;
-            }
+            // if (_playroomKit.IsHost())
+            // {
+            //     List<Vector3> spawnPoints = GetRandomizedSpawnPoints();
+            //     for (int i = 0; i < players.Count; i++)
+            //     {
+            //         var player = players[i];
+            //         GameObject playerObj = PlayerDict[player.id];
+            //         playerObj.transform.position = spawnPoints[i];
+            //         players[i].SetState("position", spawnPoints[i]);
+            //         spawned = true;
+            //     }
+            // }
+            // while (!_playroomKit.IsHost() || !spawned)
+            // {
+            //     var myPlayer = _playroomKit.MyPlayer();
+            //     GameObject myObj = PlayerDict[myPlayer.id];
+            //     Vector3 spawnPosition = myPlayer.GetState<Vector3>("position");
+            //     myObj.transform.position = spawnPosition;
+            //     spawned = true;
+            // }
         });
     }
     public void HandleFlashbangThrow(string data, string sender)
