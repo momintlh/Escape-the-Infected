@@ -19,12 +19,14 @@ namespace StarterAssets
         public bool useItem;
         public bool slot1;
         public bool slot2;
+        public bool slot3;
 
         public event EventHandler OnInteractPlayer;
         public event EventHandler OnInteractionPlayer;
         public event EventHandler OnUseItemPlayer;
         public event EventHandler OnSlotChange1;
         public event EventHandler OnSlotChange2;
+        public event EventHandler OnSlotChange3;
 
         [Header("Movement Settings")]
         public bool analogMovement;
@@ -95,6 +97,13 @@ namespace StarterAssets
                 OnSlotChange2?.Invoke(this, EventArgs.Empty);
             }
         }
+        public void OnSlot3(InputValue value)
+        {
+            if (value.isPressed)
+            {
+                OnSlotChange3?.Invoke(this, EventArgs.Empty);
+            }
+        }
 #endif
 
 
@@ -136,10 +145,14 @@ namespace StarterAssets
         public void Slot1(bool newSlot)
         {
             slot1 = newSlot;
-        }  
+        }
         public void Slot2(bool newSlot)
         {
             slot2 = newSlot;
+        }
+        public void Slot3(bool newSlot)
+        {
+            slot3 = newSlot;
         }
 
         private void OnApplicationFocus(bool hasFocus)
