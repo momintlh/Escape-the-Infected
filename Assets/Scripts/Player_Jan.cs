@@ -53,6 +53,12 @@ public class Player_Jan : MonoBehaviour
 
     private void InputSystem_OnUseItemPlayer(object sender, System.EventArgs e)
     {
+        FlashbangThrow();
+        _playroomKit.RpcCall("FlashbangThrow", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+    }
+
+    public void FlashbangThrow()
+    {
         if (flashBangPos.gameObject.activeSelf)
         {
             Debug.Log("Flash bang Instantiate");
@@ -67,10 +73,9 @@ public class Player_Jan : MonoBehaviour
         }
         else
         {
-            Debug.Log("Flash Bang is not equiped");
+            Debug.Log("Flashbang is not equipped");
         }
     }
-
     private void Update()
     {
         // CheckForGameObjectInView();

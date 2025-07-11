@@ -115,9 +115,14 @@ public class PlayroomManager : MonoBehaviour
             _playroomKit.RpcRegister("ToggleFlashlight", HandleToggleFlashlight);
             _playroomKit.RpcRegister("FlashlightActive", HandleFlashlightActive);
             _playroomKit.RpcRegister("FlashbangActive", HandleFlashbangActive);
+            _playroomKit.RpcRegister("FlashbangThrow", HandleFlashbangThrow);
         });
     }
-
+    public void HandleFlashbangThrow(string data, string sender)
+    {
+        var senderObj = PlayerDict[data];
+        senderObj.GetComponent<Player_Jan>().FlashbangThrow();  
+    }
     public void HandleFlashlightActive(string data, string sender)
     {
         var senderObj = PlayerDict[data];
