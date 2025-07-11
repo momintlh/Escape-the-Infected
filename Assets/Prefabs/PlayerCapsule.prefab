@@ -384,7 +384,7 @@ MonoBehaviour:
   playerCamera: {fileID: 9005220659476430821, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
   flashBang: {fileID: 4611506900736961076, guid: 8712dcea02cd09b439c235519ac999ed, type: 3}
   flashBangPos: {fileID: 3336731630481828007}
-  adrenalineShotPos: {fileID: 0}
+  adrenalineShotPos: {fileID: 4437563524470515310}
   flashLight: {fileID: 6584420199776138305}
 --- !u!143 &8616685848737228382
 CharacterController:
@@ -478,6 +478,7 @@ MonoBehaviour:
   useItem: 0
   slot1: 0
   slot2: 0
+  slot3: 0
   analogMovement: 0
   cursorLocked: 1
   cursorInputForLook: 1
@@ -687,6 +688,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ON: {fileID: 7671286759461157090}
   OFF: {fileID: 6067169514339197547}
+  isOn: 0
   starterAssets: {fileID: 5420857361349278248}
 --- !u!1 &6067169514339197547 stripped
 GameObject:

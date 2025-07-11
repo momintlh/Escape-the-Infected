@@ -19,9 +19,8 @@ public class PlayroomManager : MonoBehaviour
     private static readonly List<PlayroomKit.Player> players = new();
     private static readonly List<GameObject> playerGameObjects = new();
     private static Dictionary<string, GameObject> PlayerDict = new();
+    private bool spawned = false;
 
-    private string myPlayerID;
-    private Player myPlayerScript;
     private bool playerJoined = false;
 
     void Awake()
@@ -41,7 +40,7 @@ public class PlayroomManager : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (playerJoined)
+        if (playerJoined && spawned)
         {
             var myPlayer = _playroomKit.MyPlayer();
             int myIndex = players.IndexOf(myPlayer);
@@ -56,7 +55,6 @@ public class PlayroomManager : MonoBehaviour
                 fpc.Move();
                 myPlayer.SetState("position", myObj.transform.position);
                 myPlayer.SetState("direction", myObj.transform.forward);
-                //myPlayer.SetState("flashlight", myObj.GetComponentInChildren<FlashLight>(true).isOn);
             }
             else
             {
@@ -74,13 +72,6 @@ public class PlayroomManager : MonoBehaviour
                 // Get position/direction from remotePlayer's state
                 Vector3 pos = remotePlayer.GetState<Vector3>("position");
                 Vector3 dir = remotePlayer.GetState<Vector3>("direction");
-                // bool flashLight = remotePlayer.GetState<bool>("flashlight");
-                // Debug.Log("[Unity Log] Flashlight state: " + flashLight);
-                // Debug.Log("[Unity Log] Local flashlight: " + remoteObj.GetComponentInChildren<FlashLight>(true).isOn);
-                // if (flashLight != remoteObj.GetComponentInChildren<FlashLight>(true).isOn)
-                // {
-                //     remoteObj.GetComponentInChildren<FlashLight>(true).ToggleFlashlight();
-                // }
                 remoteObj.transform.position = pos;
                 if (dir != Vector3.zero)
                     remoteObj.transform.rotation = Quaternion.LookRotation(dir);
@@ -116,6 +107,27 @@ public class PlayroomManager : MonoBehaviour
             _playroomKit.RpcRegister("FlashlightActive", HandleFlashlightActive);
             _playroomKit.RpcRegister("FlashbangActive", HandleFlashbangActive);
             _playroomKit.RpcRegister("FlashbangThrow", HandleFlashbangThrow);
+
+            if (_playroomKit.IsHost())
+            {
+                List<Vector3> spawnPoints = GetRandomizedSpawnPoints();
+                for (int i = 0; i < players.Count; i++)
+                {
+                    var player = players[i];
+                    GameObject playerObj = PlayerDict[player.id];
+                    playerObj.transform.position = spawnPoints[i];
+                    players[i].SetState("position", spawnPoints[i]);
+                    spawned = true;
+                }
+            }
+            while (!_playroomKit.IsHost() || !spawned)
+            {
+                var myPlayer = _playroomKit.MyPlayer();
+                GameObject myObj = PlayerDict[myPlayer.id];
+                Vector3 spawnPosition = myPlayer.GetState<Vector3>("position");
+                myObj.transform.position = spawnPosition;
+                spawned = true;
+            }
         });
     }
     public void HandleFlashbangThrow(string data, string sender)
@@ -191,24 +203,32 @@ public class PlayroomManager : MonoBehaviour
         }
     }
  
-    //  public string SetAvailableSpawnPoints()
-    // {
-    //     if (!spawnPointsInitialized)
-    //     {
-    //         availableSpawnPoints.Clear();
-    //         foreach (GameObject go in GameObject.FindGameObjectsWithTag("SpawnPoint"))
-    //         {
-    //             Vector3 pos = go.transform.position;
-    //             // Only add if not already in the list (manual duplicate checking)
-    //             if (!availableSpawnPoints.Contains(pos))
-    //             {
-    //                 availableSpawnPoints.Add(pos);
-    //             }
-    //         }
-    //         spawnPointsInitialized = true;
-    //     }
-        
-    // }
+
+    public List<Vector3> GetRandomizedSpawnPoints()
+    {
+        if (!spawnPointsInitialized)
+        {
+            availableSpawnPoints.Clear();
+            foreach (GameObject go in GameObject.FindGameObjectsWithTag("SpawnPoint"))
+            {
+                Vector3 pos = go.transform.position;
+                if (!availableSpawnPoints.Contains(pos))
+                    availableSpawnPoints.Add(pos);
+            }
+
+            // Shuffle
+            for (int i = 0; i < availableSpawnPoints.Count; i++)
+            {
+                int rand = Random.Range(i, availableSpawnPoints.Count);
+                (availableSpawnPoints[i], availableSpawnPoints[rand]) = 
+                    (availableSpawnPoints[rand], availableSpawnPoints[i]);
+            }
+
+            spawnPointsInitialized = true;
+        }
+
+        return new List<Vector3>(availableSpawnPoints);
+    }
 
     // Helper class for JSON serialization
     [System.Serializable]
