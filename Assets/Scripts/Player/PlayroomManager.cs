@@ -1,98 +1,265 @@
 using UnityEngine;
 using Playroom;
 using System.Collections.Generic;
+using System.Linq;
+using StarterAssets;
+using Cinemachine;
+using UnityEngine.InputSystem;
+
 public class PlayroomManager : MonoBehaviour
 {
-
+    public static PlayroomManager Instance{get; private set;}
     private PlayroomKit _playroomKit;
-    [SerializeField] GameObject defaultPrefab;
-    private List<PlayerInfo> playerInfos = new List<PlayerInfo>();
-    private List<Transform> availableSpawnPoints = new List<Transform>();
+    [SerializeField]
+    GameObject defaultPrefab;
+
+    private CinemachineVirtualCamera virtualCamera;
+    private List<Vector3> availableSpawnPoints = new List<Vector3>();
     private bool spawnPointsInitialized = false;
-    private Dictionary<PlayerInfo, Player> playerMap = new Dictionary<PlayerInfo, Player>();
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private static readonly List<PlayroomKit.Player> players = new();
+    private static readonly List<GameObject> playerGameObjects = new();
+    private static Dictionary<string, GameObject> PlayerDict = new();
+    private bool spawned = false;
+
+    private bool playerJoined = false;
+
+    void Awake()
+    {
+        _playroomKit = new PlayroomKit();
+        Instance = this;
+    }
     void Start()
     {
-    InitializePlayroom();
+        InitializePlayroom();
     }
 
-    // Update is called once per frame
     void Update()
     {
 
     }
 
-    void Awake()
+    void FixedUpdate()
     {
-        _playroomKit = new PlayroomKit();
+        if (playerJoined && spawned)
+        {
+            var myPlayer = _playroomKit.MyPlayer();
+            int myIndex = players.IndexOf(myPlayer);
+            
+            // Add bounds checking to prevent ArgumentOutOfRangeException
+            if (myIndex >= 0 && myIndex < playerGameObjects.Count && myIndex < players.Count)
+            {
+                var myObj = PlayerDict[myPlayer.id];
+                var fpc = myObj.GetComponent<FirstPersonController>();
+                fpc.JumpAndGravity();
+                fpc.GroundedCheck();
+                fpc.Move();
+                myPlayer.SetState("position", myObj.transform.position);
+                myPlayer.SetState("direction", myObj.transform.forward);
+            }
+            else
+            {
+                Debug.LogWarning($"Invalid player index: {myIndex}, players count: {players.Count}, gameObjects count: {playerGameObjects.Count}");
+            }
+
+
+            // Update remote players' transforms from their PlayerInfo
+            for (int i = 0; i < players.Count; i++)
+            {
+                if (_playroomKit.MyPlayer().id == players[i].id) continue;
+                var remotePlayer = players[i];
+                GameObject remoteObj;
+                bool found = PlayerDict.TryGetValue(remotePlayer.id, out remoteObj);
+                // Get position/direction from remotePlayer's state
+                Vector3 pos = remotePlayer.GetState<Vector3>("position");
+                Vector3 dir = remotePlayer.GetState<Vector3>("direction");
+                remoteObj.transform.position = pos;
+                if (dir != Vector3.zero)
+                    remoteObj.transform.rotation = Quaternion.LookRotation(dir);
+            }
+        }
     }
+
+    void LateUpdate()
+    {
+        if (playerJoined)
+        {
+        var myPlayer = _playroomKit.MyPlayer();
+            int myIndex = players.IndexOf(myPlayer);
+        
+        var myObj = PlayerDict[myPlayer.id];
+        var fpc = myObj.GetComponent<FirstPersonController>();
+        fpc.CameraRotation();
+        }   
+    }
+
     void InitializePlayroom()
     {
         _playroomKit.InsertCoin(new InitOptions()
         {
+            gameId =  "vWV6hHHXlrUgYGzS3GW0",
             maxPlayersPerRoom = 4,
-            defaultPlayerStates = new() {
-        },
+            defaultPlayerStates = new Dictionary<string, object>(),
         }, () =>
         {
             _playroomKit.OnPlayerJoin(spawnPlayer);
             print($"[Unity Log] isHost: {_playroomKit.IsHost()}");
+            _playroomKit.RpcRegister("ToggleFlashlight", HandleToggleFlashlight);
+            _playroomKit.RpcRegister("FlashlightActive", HandleFlashlightActive);
+            _playroomKit.RpcRegister("FlashbangActive", HandleFlashbangActive);
+            _playroomKit.RpcRegister("FlashbangThrow", HandleFlashbangThrow);
 
+            if (_playroomKit.IsHost())
+            {
+                List<Vector3> spawnPoints = GetRandomizedSpawnPoints();
+                for (int i = 0; i < players.Count; i++)
+                {
+                    var player = players[i];
+                    GameObject playerObj = PlayerDict[player.id];
+                    playerObj.transform.position = spawnPoints[i];
+                    players[i].SetState("position", spawnPoints[i]);
+                    spawned = true;
+                }
+            }
+            while (!_playroomKit.IsHost() || !spawned)
+            {
+                var myPlayer = _playroomKit.MyPlayer();
+                GameObject myObj = PlayerDict[myPlayer.id];
+                Vector3 spawnPosition = myPlayer.GetState<Vector3>("position");
+                myObj.transform.position = spawnPosition;
+                spawned = true;
+            }
         });
+    }
+    public void HandleFlashbangThrow(string data, string sender)
+    {
+        var senderObj = PlayerDict[data];
+        senderObj.GetComponent<Player_Jan>().FlashbangThrow();  
+    }
+    public void HandleFlashlightActive(string data, string sender)
+    {
+        var senderObj = PlayerDict[data];
+        GameObject flashLight = senderObj.GetComponent<Player_Jan>().GetFlashLight();
+        GameObject flashbangPos = senderObj.GetComponent<Player_Jan>().GetFlashbang();
+        flashLight.gameObject.SetActive(true);
+        flashbangPos.gameObject.SetActive(false);
+    }
+
+    public void HandleToggleFlashlight(string data, string sender)
+    {
+        var senderObj = PlayerDict[data];
+        senderObj.GetComponentInChildren<FlashLight>(true).ToggleFlashlight();
+    }
+    public void HandleFlashbangActive(string data, string sender)
+    {
+        var senderObj = PlayerDict[data];
+        GameObject flashLight = senderObj.GetComponent<Player_Jan>().GetFlashLight();
+        GameObject flashbangPos = senderObj.GetComponent<Player_Jan>().GetFlashbang();
+        flashbangPos.SetActive(true);
+        flashLight.gameObject.SetActive(false);
     }
     void spawnPlayer(PlayroomKit.Player player)
     {
-        // Initialize spawn points only once
+        playerJoined = true;
+        
+        GameObject playerObj;
+        if (_playroomKit.IsHost())
+        {
+            playerObj = Instantiate(defaultPrefab, new Vector3(0, 2, 0), Quaternion.identity);
+        }
+        else
+        {
+            playerObj = Instantiate(defaultPrefab, new Vector3(0, 2, 5), Quaternion.identity);
+        }
+        // var info = new PlayerInfo(PlayerType.Human, playerObj.transform.position, Vector3.zero, new List<string>());
+        //Player playerScript = playerObj.GetComponent<Player>();
+        //playerScript.Info = info;
+
+        playerGameObjects.Add(playerObj);
+        players.Add(player);
+        PlayerDict.Add(player.id, playerObj);
+        virtualCamera = PlayerDict[player.id].GetComponentInChildren<CinemachineVirtualCamera>();
+
+        bool isLocalPlayer = (player.id == _playroomKit.MyPlayer().id);
+        var input = playerObj.GetComponent<PlayerInput>();
+        if (!isLocalPlayer && input != null)
+        {
+            Destroy(input); // Prevent remote player from capturing input
+            Destroy(virtualCamera);
+        }
+        player.OnQuit(RemovePlayer);
+    }
+
+    void AssignRoles()
+    {
+        if (playerGameObjects.Count == 0) return;
+        int monsterIndex = Random.Range(0, playerGameObjects.Count);
+        for (int i = 0; i < playerGameObjects.Count; i++)
+        {
+            // var playerScript = playerGameObjects[i].GetComponent<Player>();
+            // if (playerScript != null && playerScript.Info != null)
+            // {
+            //     playerScript.Info.Type = (i == monsterIndex) ? PlayerType.Monster : PlayerType.Human;
+            // }
+        }
+    }
+ 
+
+    public List<Vector3> GetRandomizedSpawnPoints()
+    {
         if (!spawnPointsInitialized)
         {
             availableSpawnPoints.Clear();
             foreach (GameObject go in GameObject.FindGameObjectsWithTag("SpawnPoint"))
             {
-                availableSpawnPoints.Add(go.transform);
+                Vector3 pos = go.transform.position;
+                if (!availableSpawnPoints.Contains(pos))
+                    availableSpawnPoints.Add(pos);
             }
-            // Shuffle the list for randomness
+
+            // Shuffle
             for (int i = 0; i < availableSpawnPoints.Count; i++)
             {
-                Transform temp = availableSpawnPoints[i];
-                int randomIndex = Random.Range(i, availableSpawnPoints.Count);
-                availableSpawnPoints[i] = availableSpawnPoints[randomIndex];
-                availableSpawnPoints[randomIndex] = temp;
+                int rand = Random.Range(i, availableSpawnPoints.Count);
+                (availableSpawnPoints[i], availableSpawnPoints[rand]) = 
+                    (availableSpawnPoints[rand], availableSpawnPoints[i]);
             }
+
             spawnPointsInitialized = true;
         }
 
-        if (availableSpawnPoints.Count == 0)
-        {
-            Debug.LogWarning("No available spawn points left!");
-            return;
-        }
-
-        // Get and remove a spawn point from the list
-        Transform spawnPoint = availableSpawnPoints[0];
-        availableSpawnPoints.RemoveAt(0);
-
-        GameObject playerObj = Instantiate(defaultPrefab, spawnPoint.position, Quaternion.identity);
-        var info = new PlayerInfo(player.id,  PlayerType.Human, spawnPoint.position, spawnPoint.forward, new List<string>());
-        Player playerScript = playerObj.GetComponent<Player>();
-        playerScript.Info = info;
-
-        playerInfos.Add(info);
-        playerMap[info] = playerScript;
-
-        AssignRoles();
-        print($"[Unity Log] playerInfos: {playerInfos}");
+        return new List<Vector3>(availableSpawnPoints);
     }
 
-    void AssignRoles()
+    // Helper class for JSON serialization
+    [System.Serializable]
+    public class SpawnPointsData
     {
-        if (playerInfos.Count == 0) return;
+        public List<Vector3> spawnPoints;
+    }
 
-        int monsterIndex = Random.Range(0, playerInfos.Count);
 
-        for (int i = 0; i < playerInfos.Count; i++)
+    public static void RemovePlayer(string playerID)
+    {
+        if (PlayerDict.TryGetValue(playerID, out GameObject playerObj))
         {
-            playerInfos[i].Type = (i == monsterIndex) ? PlayerType.Monster : PlayerType.Human;
+            int index = playerGameObjects.IndexOf(playerObj);
+            if (index >= 0)
+            {
+                playerGameObjects.RemoveAt(index);
+                players.RemoveAt(index);
+            }
+            PlayerDict.Remove(playerID);
+            Object.Destroy(playerObj);
         }
+        else
+        {
+            Debug.LogWarning("Player is not in dictionary");
+        }
+    }
+
+    public PlayroomKit GetPlayroomKit()
+    {
+        return _playroomKit;
     }
 }
 
