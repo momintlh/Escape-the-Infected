@@ -8,6 +8,7 @@ TagManager:
   - Door
   - SpawnPoint
   - WhiteScreen
+  - Infected
   layers:
   - Default
   - TransparentFX
