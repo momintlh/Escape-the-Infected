@@ -2,6 +2,7 @@ using StarterAssets;
 using UnityEngine;
 using System.Collections;
 
+using Playroom;
 
 public class Player_Jan : MonoBehaviour
 {
@@ -11,13 +12,14 @@ public class Player_Jan : MonoBehaviour
     [SerializeField] private Transform adrenalineShotPos;
     [SerializeField] private Transform flashLight;
 
-
     private float throwForce = 10f;
     private float interactDistance = 3f;
     private StarterAssetsInputs inputSystem;
     private FirstPersonController firstPersonController;
     private bool isDoorOpen;
     private bool isAdrenalineActive;
+
+    PlayroomKit _playroomKit;
 
 
     private void Start()
@@ -29,6 +31,8 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(false);
+        _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
+
     }
 
     private void AssignEvents()
@@ -52,6 +56,7 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(true);
+        _playroomKit.RpcCall("FlashbangActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnSlotChange1(object sender, System.EventArgs e)
@@ -59,9 +64,16 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(true);
         adrenalineShotPos.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
+        _playroomKit.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnUseItemPlayer(object sender, System.EventArgs e)
+    {
+        FlashbangThrow();
+        _playroomKit.RpcCall("FlashbangThrow", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+    }
+
+    public void FlashbangThrow()
     {
         if (flashBangPos.gameObject.activeSelf)
         {
@@ -81,7 +93,7 @@ public class Player_Jan : MonoBehaviour
         }
         else
         {
-            Debug.Log("Flash Bang is not equiped");
+            Debug.Log("Flashbang is not equipped");
         }
     }
 
@@ -131,4 +143,13 @@ public class Player_Jan : MonoBehaviour
         isAdrenalineActive = false;
     }
 
+    public GameObject GetFlashLight()
+    {
+        return flashLight.gameObject;
+    }
+    
+    public GameObject GetFlashbang()
+    {
+        return flashBangPos.gameObject;
+    }
 }
