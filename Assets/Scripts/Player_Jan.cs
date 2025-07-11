@@ -41,7 +41,7 @@ public class Player_Jan : MonoBehaviour
     {
         flashLight.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(true);
-        _playroomKit.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        _playroomKit.RpcCall("FlashbangActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnSlotChange1(object sender, System.EventArgs e)
@@ -105,5 +105,10 @@ public class Player_Jan : MonoBehaviour
     public GameObject GetFlashLight()
     {
         return flashLight.gameObject;
+    }
+    
+    public GameObject GetFlashbang()
+    {
+        return flashBangPos.gameObject;
     }
 }

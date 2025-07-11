@@ -114,26 +114,32 @@ public class PlayroomManager : MonoBehaviour
             print($"[Unity Log] isHost: {_playroomKit.IsHost()}");
             _playroomKit.RpcRegister("ToggleFlashlight", HandleToggleFlashlight);
             _playroomKit.RpcRegister("FlashlightActive", HandleFlashlightActive);
+            _playroomKit.RpcRegister("FlashbangActive", HandleFlashbangActive);
         });
     }
 
     public void HandleFlashlightActive(string data, string sender)
     {
         var senderObj = PlayerDict[data];
-        GameObject flashlight = senderObj.GetComponent<Player_Jan>().GetFlashLight();
-        if (flashlight.activeSelf)
-        flashlight.SetActive(false);
-        else
-        flashlight.SetActive(true);
+        GameObject flashLight = senderObj.GetComponent<Player_Jan>().GetFlashLight();
+        GameObject flashbangPos = senderObj.GetComponent<Player_Jan>().GetFlashbang();
+        flashLight.gameObject.SetActive(true);
+        flashbangPos.gameObject.SetActive(false);
     }
 
     public void HandleToggleFlashlight(string data, string sender)
     {
         var senderObj = PlayerDict[data];
         senderObj.GetComponentInChildren<FlashLight>(true).ToggleFlashlight();
-        Debug.Log(senderObj.GetComponentInChildren<FlashLight>(true).isOn);
     }
-
+    public void HandleFlashbangActive(string data, string sender)
+    {
+        var senderObj = PlayerDict[data];
+        GameObject flashLight = senderObj.GetComponent<Player_Jan>().GetFlashLight();
+        GameObject flashbangPos = senderObj.GetComponent<Player_Jan>().GetFlashbang();
+        flashbangPos.SetActive(true);
+        flashLight.gameObject.SetActive(false);
+    }
     void spawnPlayer(PlayroomKit.Player player)
     {
         playerJoined = true;
