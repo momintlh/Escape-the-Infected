@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 00d93666b36044848b80358a6278c143
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 4890085278179872738
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 114531
+  packageName: Ghoul-zombie
+  packageVersion: 1.0
+  assetPath: Assets/_GhoulZombie/GhoulSceneSettings.lighting
+  uploadId: 449051

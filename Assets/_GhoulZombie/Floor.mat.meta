@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 0d0901b97e99da84797b3b9b6f9ef2ea
+timeCreated: 1521472153
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 114531
+  packageName: Ghoul-zombie
+  packageVersion: 1.0
+  assetPath: Assets/_GhoulZombie/Floor.mat
+  uploadId: 449051

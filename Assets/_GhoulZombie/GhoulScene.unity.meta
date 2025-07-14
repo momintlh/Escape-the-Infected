@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 85b08af126c9990409c1c4ed5eec814d
+timeCreated: 1521471397
+licenseType: Store
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 114531
+  packageName: Ghoul-zombie
+  packageVersion: 1.0
+  assetPath: Assets/_GhoulZombie/GhoulScene.unity
+  uploadId: 449051
