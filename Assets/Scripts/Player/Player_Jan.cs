@@ -1,6 +1,8 @@
 using StarterAssets;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 using Playroom;
 using UnityEngine.Rendering.Universal;
@@ -23,7 +25,6 @@ public class Player_Jan : MonoBehaviour
     private FirstPersonController firstPersonController;
     private bool isDoorOpen;
     private bool isAdrenalineActive;
-
     PlayroomKit _playroomKit;
 
 
@@ -38,6 +39,7 @@ public class Player_Jan : MonoBehaviour
         flashBangPos.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(false);
         _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
+        
     }
 
     private void AssignEvents()
@@ -115,15 +117,11 @@ public class Player_Jan : MonoBehaviour
         {
             if (hit.collider.CompareTag("Door"))
             {
-                DoorAnimtion doorAnim = hit.collider.GetComponent<DoorAnimtion>();
-                if (doorAnim != null)
-                {
-                    doorAnim.ToggleDoor();
-                }
+                int doorIndex = PlayroomManager.doors.IndexOf(hit.collider.gameObject);
+                _playroomKit.RpcCall("ToggleDoor", doorIndex, PlayroomKit.RpcMode.ALL);
             }
         }
     }
-
 
     private void InputSystem_OnInteractPlayer(object sender, System.EventArgs e)
     {
