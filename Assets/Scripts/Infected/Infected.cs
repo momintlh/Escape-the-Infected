@@ -25,7 +25,6 @@ public class Infected : MonoBehaviour
         firstPersonController = GetComponent<FirstPersonController>();
         bloodVisionMat.SetFloat(VIGNETTE_INTENSITY, currentIntensity);
         AssignsEvents();
-
         StartCoroutine(IncreaseIntensityEveryMinute());
     }
 
@@ -59,7 +58,7 @@ public class Infected : MonoBehaviour
             }
         }
     }
-
+    
     private IEnumerator IncreaseIntensityEveryMinute()
     {
         while (true)

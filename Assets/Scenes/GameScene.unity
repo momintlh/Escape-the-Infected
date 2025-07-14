@@ -972,6 +972,25 @@ ReflectionProbe:
   m_UseOcclusionCulling: 1
   m_Importance: 1
   m_CustomBakedTexture: {fileID: 0}
+--- !u!1 &404833494 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7518276414683596167, guid: 34d29bc538bc65942b86202f24e2e47b, type: 3}
+  m_PrefabInstance: {fileID: 575893444}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &404833502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 404833494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6eef0da1d56ef9747b8c312a1425f37b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetCamera: {fileID: 0}
+  layerToToggle: FootPrintLayer
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -1346,10 +1365,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1914994055762951635, guid: 34d29bc538bc65942b86202f24e2e47b, type: 3}
+      propertyPath: IgnoreTag
+      value: Infected
+      objectReference: {fileID: 0}
+    - target: {fileID: 1914994055762951635, guid: 34d29bc538bc65942b86202f24e2e47b, type: 3}
+      propertyPath: CameraCollisionFilter.m_Bits
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 3763975630004563600, guid: 34d29bc538bc65942b86202f24e2e47b, type: 3}
       propertyPath: playerCamera
       value: 
       objectReference: {fileID: 1952455196}
+    - target: {fileID: 3763975630004563600, guid: 34d29bc538bc65942b86202f24e2e47b, type: 3}
+      propertyPath: footPrintLayer.m_Bits
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 7518276414683596167, guid: 34d29bc538bc65942b86202f24e2e47b, type: 3}
       propertyPath: m_Name
       value: InfectedCapsule
@@ -1397,7 +1428,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7518276414683596167, guid: 34d29bc538bc65942b86202f24e2e47b, type: 3}
+      insertIndex: 2
+      addedObject: {fileID: 404833502}
   m_SourcePrefab: {fileID: 100100000, guid: 34d29bc538bc65942b86202f24e2e47b, type: 3}
 --- !u!1 &582184972
 GameObject:

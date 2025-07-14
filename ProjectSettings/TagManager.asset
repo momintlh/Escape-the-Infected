@@ -9,11 +9,12 @@ TagManager:
   - SpawnPoint
   - WhiteScreen
   - Infected
+  - FootPrint
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - FootPrintLayer
   - Water
   - UI
   - 

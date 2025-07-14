@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2659996469656458695}
   - component: {fileID: 8214762995579643869}
   - component: {fileID: -6282932267558054246}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeftFootPrint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -122,4 +122,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1f52c4e0cdd78d4896619438c9c797a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Lifetime: 2
+  Lifetime: 10
