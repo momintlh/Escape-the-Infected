@@ -25,7 +25,7 @@ public class Player_Jan : MonoBehaviour
     private FirstPersonController firstPersonController;
     private bool isDoorOpen;
     private bool isAdrenalineActive;
-    PlayroomKit _playroomKit;
+    //PlayroomKit _playroomKit;
 
 
     private void Start()
@@ -38,7 +38,7 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(false);
-        _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
+       // _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
         
     }
 
@@ -56,7 +56,7 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(true);
-        _playroomKit.RpcCall("AdrenalineActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        //_playroomKit.RpcCall("AdrenalineActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnSlotChange2(object sender, System.EventArgs e)
@@ -64,7 +64,7 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(true);
-        _playroomKit.RpcCall("FlashbangActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        //_playroomKit.RpcCall("FlashbangActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnSlotChange1(object sender, System.EventArgs e)
@@ -72,13 +72,13 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(true);
         adrenalineShotPos.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
-        _playroomKit.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+      //  _playroomKit.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnUseItemPlayer(object sender, System.EventArgs e)
     {
         FlashbangThrow();
-        _playroomKit.RpcCall("FlashbangThrow", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        //_playroomKit.RpcCall("FlashbangThrow", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     public void FlashbangThrow()
@@ -118,7 +118,7 @@ public class Player_Jan : MonoBehaviour
             if (hit.collider.CompareTag("Door"))
             {
                 int doorIndex = PlayroomManager.doors.IndexOf(hit.collider.gameObject);
-                _playroomKit.RpcCall("ToggleDoor", doorIndex, PlayroomKit.RpcMode.ALL);
+             //   _playroomKit.RpcCall("ToggleDoor", doorIndex, PlayroomKit.RpcMode.ALL);
             }
         }
     }
