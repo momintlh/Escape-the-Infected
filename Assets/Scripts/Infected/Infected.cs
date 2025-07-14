@@ -1,9 +1,12 @@
 using StarterAssets;
 using UnityEngine;
+using System.Collections;
+
 
 public class Infected : MonoBehaviour
 {
     private const string VIGNETTE_INTENSITY = "_VignetteIntensity";
+    private const string VIGNETTE_POWER = "_VignettePower";
 
 
     [SerializeField] private Camera playerCamera;
@@ -11,13 +14,17 @@ public class Infected : MonoBehaviour
 
     private float interactDistance = 3f;
     private StarterAssetsInputs inputSystem;
+    private float currentIntensity = 20;
+    private float currentPower = 7;
 
 
     void Start()
     {
         inputSystem = GetComponent<StarterAssetsInputs>();
-        bloodVisionMat.SetFloat(VIGNETTE_INTENSITY, 20);
+        bloodVisionMat.SetFloat(VIGNETTE_INTENSITY, currentIntensity);
         AssignsEvents();
+
+        StartCoroutine(IncreaseIntensityEveryMinute());
     }
 
     private void AssignsEvents()
@@ -48,6 +55,23 @@ public class Infected : MonoBehaviour
                     doorAnim.ToggleDoor();
                 }
             }
+        }
+    }
+
+    private IEnumerator IncreaseIntensityEveryMinute()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(60f);  // Wait 1 minute
+
+            currentIntensity += 5f;
+            currentPower -= 0.5f;
+            bloodVisionMat.SetFloat(VIGNETTE_INTENSITY, currentIntensity);
+            bloodVisionMat.SetFloat(VIGNETTE_POWER, currentPower);
+            if (currentPower <= 3.5f) yield break;
+            
+            
+            
         }
     }
 }

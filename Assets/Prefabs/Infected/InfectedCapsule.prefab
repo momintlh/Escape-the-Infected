@@ -244,6 +244,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 0}
+  bloodVisionMat: {fileID: 2100000, guid: fad8801c13a330f4aa5d294eb9581d90, type: 2}
 --- !u!143 &969074072555454056
 CharacterController:
   m_ObjectHideFlags: 0
