@@ -1,2 +1,17 @@
 fileFormatVersion: 2
 guid: abf93b4f9f04ce946a75f7b79084c53f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - playerCamera: {instanceID: 0}
+  - flashBang: {instanceID: 0}
+  - flashBangPos: {instanceID: 0}
+  - adrenalineShotPos: {instanceID: 0}
+  - flashLight: {instanceID: 0}
+  - bloodVisionMat: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

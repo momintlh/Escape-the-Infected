@@ -108,6 +108,7 @@ public class PlayroomManager : MonoBehaviour
             _playroomKit.RpcRegister("FlashlightActive", HandleFlashlightActive);
             _playroomKit.RpcRegister("FlashbangActive", HandleFlashbangActive);
             _playroomKit.RpcRegister("FlashbangThrow", HandleFlashbangThrow);
+            _playroomKit.RpcRegister("AdrenalineActive", HandleAdrenalineActive);
             if (_playroomKit.IsHost())
             {
                 availableSpawnPoints = GetRandomizedSpawnPoints();
@@ -121,13 +122,26 @@ public class PlayroomManager : MonoBehaviour
         senderObj.GetComponent<Player_Jan>().FlashbangThrow();  
     }
 
+    public void HandleAdrenalineActive(string data, string sender)
+    {
+        var senderObj = PlayerDict[data];
+        GameObject adrenalineShotPos = senderObj.GetComponent<Player_Jan>().GetAdrenaline();
+        GameObject flashbangPos = senderObj.GetComponent<Player_Jan>().GetFlashbang();
+        GameObject flashLight = senderObj.GetComponent<Player_Jan>().GetFlashLight();
+        adrenalineShotPos.gameObject.SetActive(true);
+        flashbangPos.gameObject.SetActive(false);
+        flashLight.gameObject.SetActive(false);
+    }
+
     public void HandleFlashlightActive(string data, string sender)
     {
         var senderObj = PlayerDict[data];
         GameObject flashLight = senderObj.GetComponent<Player_Jan>().GetFlashLight();
         GameObject flashbangPos = senderObj.GetComponent<Player_Jan>().GetFlashbang();
+        GameObject adrenalineShotPos = senderObj.GetComponent<Player_Jan>().GetAdrenaline();
         flashLight.gameObject.SetActive(true);
         flashbangPos.gameObject.SetActive(false);
+        adrenalineShotPos.gameObject.SetActive(false);
     }
 
     public void HandleToggleFlashlight(string data, string sender)
@@ -140,8 +154,10 @@ public class PlayroomManager : MonoBehaviour
         var senderObj = PlayerDict[data];
         GameObject flashLight = senderObj.GetComponent<Player_Jan>().GetFlashLight();
         GameObject flashbangPos = senderObj.GetComponent<Player_Jan>().GetFlashbang();
+        GameObject adrenalineShotPos = senderObj.GetComponent<Player_Jan>().GetAdrenaline();
         flashbangPos.SetActive(true);
         flashLight.gameObject.SetActive(false);
+        adrenalineShotPos.gameObject.SetActive(false);
     }
     void spawnPlayer(PlayroomKit.Player player)
     {

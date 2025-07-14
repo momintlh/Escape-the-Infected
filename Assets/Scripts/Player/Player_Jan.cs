@@ -37,8 +37,7 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(false);
-       // _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
-
+        _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
     }
 
     private void AssignEvents()
@@ -55,6 +54,7 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(true);
+        _playroomKit.RpcCall("AdrenalineActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnSlotChange2(object sender, System.EventArgs e)
@@ -62,7 +62,7 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(true);
-        _playroomKit?.RpcCall("FlashbangActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        _playroomKit.RpcCall("FlashbangActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnSlotChange1(object sender, System.EventArgs e)
@@ -70,13 +70,13 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(true);
         adrenalineShotPos.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
-        _playroomKit?.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        _playroomKit.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnUseItemPlayer(object sender, System.EventArgs e)
     {
         FlashbangThrow();
-        _playroomKit?.RpcCall("FlashbangThrow", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        _playroomKit.RpcCall("FlashbangThrow", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     public void FlashbangThrow()
@@ -105,6 +105,7 @@ public class Player_Jan : MonoBehaviour
 
     private void CheckForGameObjectInView()
     {
+        playerCamera = Camera.main;
         Ray ray = playerCamera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
         RaycastHit hit;
 
@@ -157,5 +158,9 @@ public class Player_Jan : MonoBehaviour
     public GameObject GetFlashbang()
     {
         return flashBangPos.gameObject;
+    }
+    public GameObject GetAdrenaline()
+    {
+        return adrenalineShotPos.gameObject;
     }
 }
