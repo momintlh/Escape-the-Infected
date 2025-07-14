@@ -37,7 +37,7 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(false);
-       // _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
+       //_playroomKit = PlayroomManager.Instance.GetPlayroomKit();
 
     }
 
