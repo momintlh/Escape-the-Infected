@@ -20,6 +20,7 @@ public class PlayroomManager : MonoBehaviour
     private static readonly List<PlayroomKit.Player> players = new();
     private static readonly List<GameObject> playerGameObjects = new();
     private static Dictionary<string, GameObject> PlayerDict = new();
+    public static List<GameObject> doors = new();
     private bool spawned = false;
 
     private bool playerJoined = false;
@@ -31,6 +32,7 @@ public class PlayroomManager : MonoBehaviour
     }
     void Start()
     {
+        doors = GetAllDoors();
         InitializePlayroom();
     }
 
@@ -109,6 +111,7 @@ public class PlayroomManager : MonoBehaviour
             _playroomKit.RpcRegister("FlashbangActive", HandleFlashbangActive);
             _playroomKit.RpcRegister("FlashbangThrow", HandleFlashbangThrow);
             _playroomKit.RpcRegister("AdrenalineActive", HandleAdrenalineActive);
+            _playroomKit.RpcRegister("ToggleDoor", HandleToggleDoor);
             if (_playroomKit.IsHost())
             {
                 availableSpawnPoints = GetRandomizedSpawnPoints();
@@ -116,6 +119,12 @@ public class PlayroomManager : MonoBehaviour
         });
     }
 
+    public void HandleToggleDoor(string data, string sender)
+    {
+        GameObject door = doors[int.Parse(data)];
+        door.GetComponent<DoorAnimtion>().ToggleDoor();
+        Debug.Log("Door Toggled");
+    }
     public void HandleFlashbangThrow(string data, string sender)
     {
         var senderObj = PlayerDict[data];
@@ -219,7 +228,6 @@ public class PlayroomManager : MonoBehaviour
 
         return new List<Vector3>(availableSpawnPoints);
     }
-
     // Coroutine for non-host player instantiation after delay
     private IEnumerator SpawnNonHostPlayerAfterDelay(PlayroomKit.Player player)
     {
@@ -273,5 +281,10 @@ public class PlayroomManager : MonoBehaviour
     {
         return _playroomKit;
     }
-}
+
+    public List<GameObject> GetAllDoors()
+    {
+        return GameObject.FindGameObjectsWithTag("Door").ToList();
+    }
+}   
 
