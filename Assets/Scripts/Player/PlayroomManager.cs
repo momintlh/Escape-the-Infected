@@ -1,5 +1,6 @@
 using UnityEngine;
 using Playroom;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using StarterAssets;
@@ -14,7 +15,7 @@ public class PlayroomManager : MonoBehaviour
     GameObject defaultPrefab;
 
     private CinemachineVirtualCamera virtualCamera;
-    private List<Vector3> availableSpawnPoints = new List<Vector3>();
+    private List<Vector3> availableSpawnPoints =  new List<Vector3>();
     private bool spawnPointsInitialized = false;
     private static readonly List<PlayroomKit.Player> players = new();
     private static readonly List<GameObject> playerGameObjects = new();
@@ -40,7 +41,7 @@ public class PlayroomManager : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (playerJoined)
+        if (spawned)
         {
             var myPlayer = _playroomKit.MyPlayer();
             int myIndex = players.IndexOf(myPlayer);
@@ -81,7 +82,7 @@ public class PlayroomManager : MonoBehaviour
 
     void LateUpdate()
     {
-        if (playerJoined)
+        if (spawned)
         {
         var myPlayer = _playroomKit.MyPlayer();
             int myIndex = players.IndexOf(myPlayer);
@@ -107,34 +108,19 @@ public class PlayroomManager : MonoBehaviour
             _playroomKit.RpcRegister("FlashlightActive", HandleFlashlightActive);
             _playroomKit.RpcRegister("FlashbangActive", HandleFlashbangActive);
             _playroomKit.RpcRegister("FlashbangThrow", HandleFlashbangThrow);
-
-            // if (_playroomKit.IsHost())
-            // {
-            //     List<Vector3> spawnPoints = GetRandomizedSpawnPoints();
-            //     for (int i = 0; i < players.Count; i++)
-            //     {
-            //         var player = players[i];
-            //         GameObject playerObj = PlayerDict[player.id];
-            //         playerObj.transform.position = spawnPoints[i];
-            //         players[i].SetState("position", spawnPoints[i]);
-            //         spawned = true;
-            //     }
-            // }
-            // while (!_playroomKit.IsHost() || !spawned)
-            // {
-            //     var myPlayer = _playroomKit.MyPlayer();
-            //     GameObject myObj = PlayerDict[myPlayer.id];
-            //     Vector3 spawnPosition = myPlayer.GetState<Vector3>("position");
-            //     myObj.transform.position = spawnPosition;
-            //     spawned = true;
-            // }
+            if (_playroomKit.IsHost())
+            {
+                availableSpawnPoints = GetRandomizedSpawnPoints();
+            }
         });
     }
+
     public void HandleFlashbangThrow(string data, string sender)
     {
         var senderObj = PlayerDict[data];
         senderObj.GetComponent<Player_Jan>().FlashbangThrow();  
     }
+
     public void HandleFlashlightActive(string data, string sender)
     {
         var senderObj = PlayerDict[data];
@@ -161,32 +147,20 @@ public class PlayroomManager : MonoBehaviour
     {
         playerJoined = true;
         
-        GameObject playerObj;
+        Vector3 spawnPosition = Vector3.zero;
+        
+        // Host determines spawn position for all players
         if (_playroomKit.IsHost())
         {
-            playerObj = Instantiate(defaultPrefab, new Vector3(0, 2, 0), Quaternion.identity);
+            
+            spawnPosition = availableSpawnPoints[^1];
+            availableSpawnPoints.RemoveAt(availableSpawnPoints.Count - 1);
+            player.SetState("position", spawnPosition);
+            Debug.Log($"Host set spawn position for player {player.id} at {spawnPosition}");
         }
-        else
-        {
-            playerObj = Instantiate(defaultPrefab, new Vector3(0, 2, 5), Quaternion.identity);
-        }
-        // var info = new PlayerInfo(PlayerType.Human, playerObj.transform.position, Vector3.zero, new List<string>());
-        //Player playerScript = playerObj.GetComponent<Player>();
-        //playerScript.Info = info;
+            StartCoroutine(SpawnNonHostPlayerAfterDelay(player));
+            return;
 
-        playerGameObjects.Add(playerObj);
-        players.Add(player);
-        PlayerDict.Add(player.id, playerObj);
-        virtualCamera = PlayerDict[player.id].GetComponentInChildren<CinemachineVirtualCamera>();
-
-        bool isLocalPlayer = (player.id == _playroomKit.MyPlayer().id);
-        var input = playerObj.GetComponent<PlayerInput>();
-        if (!isLocalPlayer && input != null)
-        {
-            Destroy(input); // Prevent remote player from capturing input
-            Destroy(virtualCamera);
-        }
-        player.OnQuit(RemovePlayer);
     }
 
     void AssignRoles()
@@ -228,6 +202,28 @@ public class PlayroomManager : MonoBehaviour
         }
 
         return new List<Vector3>(availableSpawnPoints);
+    }
+
+    // Coroutine for non-host player instantiation after delay
+    private IEnumerator SpawnNonHostPlayerAfterDelay(PlayroomKit.Player player)
+    {
+        yield return new WaitForSeconds(1f);
+        Vector3 spawnPosition = player.GetState<Vector3>("position");
+        GameObject playerObj = Instantiate(defaultPrefab, spawnPosition, Quaternion.identity);
+        playerGameObjects.Add(playerObj);
+        players.Add(player);
+        PlayerDict.Add(player.id, playerObj);
+        spawned = true;
+        virtualCamera = PlayerDict[player.id].GetComponentInChildren<CinemachineVirtualCamera>();
+
+        bool isLocalPlayer = (player.id == _playroomKit.MyPlayer().id);
+        var input = playerObj.GetComponent<PlayerInput>();
+        if (!isLocalPlayer && input != null)
+        {
+            Destroy(input); // Prevent remote player from capturing input
+            Destroy(virtualCamera);
+        }
+        player.OnQuit(RemovePlayer);
     }
 
     // Helper class for JSON serialization
