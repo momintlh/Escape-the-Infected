@@ -14,14 +14,14 @@ public class PlayerAnimation : MonoBehaviour
         float vertical = Input.GetAxis("Vertical");
 
         Vector3 input = new Vector3(horizontal, 0, vertical);
-        float inputMagnitude = input.normalized.magnitude; // Will always be 0 to 1
+        float inputMagnitude = input.normalized.magnitude; // 0 to 1
 
-        // Walk = 1, Run = 2
-        float speed = inputMagnitude;
+        // Scale to your thresholds
+        float speed = inputMagnitude * 0.5f; // Walk = 0.5 when fully pressed
 
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            speed = inputMagnitude * 2f;
+            speed = inputMagnitude * 1.0f; // Run = 1 when fully pressed
         }
 
         Debug.Log("Speed: " + speed);
