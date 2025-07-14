@@ -3,14 +3,19 @@ using UnityEngine;
 using System.Collections;
 
 using Playroom;
+using UnityEngine.Rendering.Universal;
 
 public class Player_Jan : MonoBehaviour
 {
+    private const string VIGNETTE_INTENSITY = "_VignetteIntensity";
+
     [SerializeField] private Camera playerCamera;
     [SerializeField] private GameObject flashBang;
     [SerializeField] private Transform flashBangPos;
     [SerializeField] private Transform adrenalineShotPos;
     [SerializeField] private Transform flashLight;
+    [SerializeField] private Material bloodVisionMat;
+
 
     private float throwForce = 10f;
     private float interactDistance = 3f;
@@ -24,6 +29,7 @@ public class Player_Jan : MonoBehaviour
 
     private void Start()
     {
+        bloodVisionMat.SetFloat(VIGNETTE_INTENSITY, 0);
         inputSystem = GetComponent<StarterAssetsInputs>();
         firstPersonController = GetComponent<FirstPersonController>();
         AssignEvents();
@@ -31,7 +37,7 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(false);
-        _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
+       // _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
 
     }
 
@@ -56,7 +62,7 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(true);
-        _playroomKit.RpcCall("FlashbangActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        _playroomKit?.RpcCall("FlashbangActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnSlotChange1(object sender, System.EventArgs e)
@@ -64,13 +70,13 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(true);
         adrenalineShotPos.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
-        _playroomKit.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        _playroomKit?.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnUseItemPlayer(object sender, System.EventArgs e)
     {
         FlashbangThrow();
-        _playroomKit.RpcCall("FlashbangThrow", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        _playroomKit?.RpcCall("FlashbangThrow", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     public void FlashbangThrow()
