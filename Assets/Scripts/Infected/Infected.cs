@@ -3,16 +3,20 @@ using UnityEngine;
 
 public class Infected : MonoBehaviour
 {
-    [SerializeField] private Camera playerCamera;
+    private const string VIGNETTE_INTENSITY = "_VignetteIntensity";
 
+
+    [SerializeField] private Camera playerCamera;
+    [SerializeField] private Material bloodVisionMat;
 
     private float interactDistance = 3f;
     private StarterAssetsInputs inputSystem;
 
+
     void Start()
     {
         inputSystem = GetComponent<StarterAssetsInputs>();
-
+        bloodVisionMat.SetFloat(VIGNETTE_INTENSITY, 20);
         AssignsEvents();
     }
 

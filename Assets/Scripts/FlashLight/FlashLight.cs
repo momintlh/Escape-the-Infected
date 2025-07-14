@@ -20,13 +20,14 @@ public class FlashLight : MonoBehaviour
         isOn = false;
 
         starterAssets.OnInteractionPlayer += StarterAssets_OnInteractionPlayer;
+        if(PlayroomManager.Instance != null)
         _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
     }
 
     private void StarterAssets_OnInteractionPlayer(object sender, System.EventArgs e)
     {
         ToggleFlashlight();
-        _playroomKit.RpcCall("ToggleFlashlight", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        _playroomKit?.RpcCall("ToggleFlashlight", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     public void ToggleFlashlight()

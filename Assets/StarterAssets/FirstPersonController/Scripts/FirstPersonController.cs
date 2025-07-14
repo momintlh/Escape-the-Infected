@@ -110,17 +110,24 @@ namespace StarterAssets
 			_fallTimeoutDelta = FallTimeout;
 		}
 
-		private void Update()
-		{
 
-		}
+#if UNITY_EDITOR
+        private void Update()
+        {
+            JumpAndGravity();
+            GroundedCheck();
+            Move();
+        }
+        private void LateUpdate()
+        {
+            CameraRotation();
+        }
+#endif
 
-		private void LateUpdate()
-		{
 
-		}
 
-		public void GroundedCheck()
+
+        public void GroundedCheck()
 		{
 			// set sphere position, with offset
 			Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
