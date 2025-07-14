@@ -14,6 +14,7 @@ public class Infected : MonoBehaviour
 
     private float interactDistance = 3f;
     private StarterAssetsInputs inputSystem;
+    private FirstPersonController firstPersonController;
     private float currentIntensity = 20;
     private float currentPower = 7;
 
@@ -21,6 +22,7 @@ public class Infected : MonoBehaviour
     void Start()
     {
         inputSystem = GetComponent<StarterAssetsInputs>();
+        firstPersonController = GetComponent<FirstPersonController>();
         bloodVisionMat.SetFloat(VIGNETTE_INTENSITY, currentIntensity);
         AssignsEvents();
 
@@ -64,14 +66,12 @@ public class Infected : MonoBehaviour
         {
             yield return new WaitForSeconds(60f);  // Wait 1 minute
 
+            firstPersonController.SprintSpeed += 0.5f;
             currentIntensity += 5f;
             currentPower -= 0.5f;
             bloodVisionMat.SetFloat(VIGNETTE_INTENSITY, currentIntensity);
             bloodVisionMat.SetFloat(VIGNETTE_POWER, currentPower);
             if (currentPower <= 3.5f) yield break;
-            
-            
-            
         }
     }
 }
