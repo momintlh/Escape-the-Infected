@@ -42,13 +42,20 @@ public class PlayerFootPrintVisuals : MonoBehaviour
             GameObject prefabToUse = useLeftFoot ? leftFootPrintPrefab : rightFootPrintPrefab;
             if (prefabToUse == null) return;
 
-            // Spawn footprint at hit point
-            GameObject footprint = Instantiate(prefabToUse, hit.point + Vector3.up * 0.01f, Quaternion.identity);
+            // Compute offset behind player in local space (-1 on local Z)
+            Vector3 localOffset = new Vector3(0, 0, -1f);
+            Vector3 worldOffset = transform.TransformDirection(localOffset);
+
+            // Place footprint with offset
+            Vector3 spawnPos = hit.point + worldOffset + Vector3.up * 0.01f;
+
+            GameObject footprint = Instantiate(prefabToUse, spawnPos, Quaternion.identity);
             footprint.transform.rotation = Quaternion.Euler(90, transform.eulerAngles.y, 0);
 
             useLeftFoot = !useLeftFoot;
         }
     }
+
 
     private void OnCollisionEnter(Collision collision)
     {

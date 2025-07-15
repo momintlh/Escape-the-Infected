@@ -18,6 +18,7 @@ public class Infected : MonoBehaviour
     private float currentIntensity = 20;
     private float currentPower = 7;
 
+    private bool captureZone;
 
     void Start()
     {
@@ -36,6 +37,11 @@ public class Infected : MonoBehaviour
     private void InputSystem_OnInteractPlayer(object sender, System.EventArgs e)
     {
         CheckForGameObjectInView();
+        if (captureZone)
+        {
+            PlayerUIManager.instance.ShowGameOver();
+            LocalGameManager.Instance.GameOver();
+        }
     }
 
 
@@ -58,7 +64,22 @@ public class Infected : MonoBehaviour
             }
         }
     }
-    
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            captureZone = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            captureZone = false;
+        }
+    }
+
     private IEnumerator IncreaseIntensityEveryMinute()
     {
         while (true)

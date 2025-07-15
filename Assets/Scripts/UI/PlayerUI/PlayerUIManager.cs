@@ -7,19 +7,21 @@ using System.Collections;
 
 public class PlayerUIManager : MonoBehaviour
 {
-    public static PlayerUIManager instance {  get; private set; }
+    public static PlayerUIManager instance { get; private set; }
 
     [SerializeField] private Button Slot1;
     [SerializeField] private Button Slot2;
     [SerializeField] private Button Slot3;
 
+    [SerializeField] private GameObject gameOverPanel;
 
     private bool haveFlashBang = true;
-    private bool haveSyringe= true;
+    private bool haveSyringe = true;
 
     private void Awake()
     {
         instance = this;
+        HideGameOver();
     }
 
 
@@ -38,7 +40,7 @@ public class PlayerUIManager : MonoBehaviour
         }
         else
         {
-            StartCoroutine(NoItem(Slot2)); 
+            StartCoroutine(NoItem(Slot2));
         }
 
     }
@@ -58,7 +60,7 @@ public class PlayerUIManager : MonoBehaviour
 
     public void FlashBangItemFalse()
     {
-       haveFlashBang = false;
+        haveFlashBang = false;
     }
     public void SyringeItemFalse()
     {
@@ -71,5 +73,14 @@ public class PlayerUIManager : MonoBehaviour
         button.image.color = Color.white;
     }
 
+
+    public void ShowGameOver()
+    {
+        gameOverPanel.SetActive(true);
+    }
+    public void HideGameOver()
+    {
+        gameOverPanel.SetActive(false);
+    }
 
 }

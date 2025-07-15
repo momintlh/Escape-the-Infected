@@ -53,6 +53,13 @@ public class Player_Jan : MonoBehaviour
         inputSystem.OnSlotChange1 += InputSystem_OnSlotChange1;
         inputSystem.OnSlotChange2 += InputSystem_OnSlotChange2;
         inputSystem.OnSlotChange3 += InputSystem_OnSlotChange3;
+
+        LocalGameManager.Instance.OnGameOver += LocalGameManager_OnGameOver;
+    }
+
+    private void LocalGameManager_OnGameOver(object sender, System.EventArgs e)
+    {
+        gameObject.SetActive(false);
     }
 
     private void InputSystem_OnSlotChange3(object sender, System.EventArgs e)
