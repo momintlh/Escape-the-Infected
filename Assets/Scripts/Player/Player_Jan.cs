@@ -56,6 +56,7 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(true);
+        PlayerUIManager.instance.Slot3Selected();
         //_playroomKit.RpcCall("AdrenalineActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
@@ -64,6 +65,8 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(true);
+        PlayerUIManager.instance.Slot2Selected();
+
         //_playroomKit.RpcCall("FlashbangActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
@@ -72,12 +75,14 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(true);
         adrenalineShotPos.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
+        PlayerUIManager.instance.Slot1Selected();
       //  _playroomKit.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnUseItemPlayer(object sender, System.EventArgs e)
     {
         FlashbangThrow();
+        
         //_playroomKit.RpcCall("FlashbangThrow", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
@@ -94,6 +99,7 @@ public class Player_Jan : MonoBehaviour
             {
                 flashRb.AddForce(flashBangPos.forward * throwForce, ForceMode.VelocityChange);
             }
+            flashBangPos.gameObject.SetActive(false);
         }
         else if(adrenalineShotPos.gameObject.activeSelf)
         {
@@ -142,6 +148,7 @@ public class Player_Jan : MonoBehaviour
         firstPersonController.SprintSpeed += speedBoost;
 
         yield return new WaitForSeconds(3.0f);
+        adrenalineShotPos.gameObject.SetActive(false);
 
         firstPersonController.SprintSpeed = original;
         
