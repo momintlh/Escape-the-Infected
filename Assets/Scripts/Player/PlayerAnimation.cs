@@ -3,6 +3,8 @@ using UnityEngine;
 public class PlayerAnimation : MonoBehaviour
 {
     [SerializeField] private Animator animator;
+    [SerializeField] private Transform rightHandTarget;
+    [SerializeField] private float ikWeight = 1.0f;
 
     private void Update()
     {
@@ -34,4 +36,6 @@ public class PlayerAnimation : MonoBehaviour
     {
         animator.SetFloat("Speed", speed);
     }
+
+
 }
