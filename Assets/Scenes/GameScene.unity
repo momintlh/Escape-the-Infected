@@ -5481,6 +5481,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 231547800788733357, guid: 56dd827702d7df4478886a29b0e51f4c, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 917076654458973108, guid: 56dd827702d7df4478886a29b0e51f4c, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -5597,6 +5601,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CanvasForPlayer
       objectReference: {fileID: 0}
+    - target: {fileID: 6860635496454008324, guid: 56dd827702d7df4478886a29b0e51f4c, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8060208512394132903, guid: 56dd827702d7df4478886a29b0e51f4c, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -5611,6 +5619,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8060208512394132903, guid: 56dd827702d7df4478886a29b0e51f4c, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8708313676433675839, guid: 56dd827702d7df4478886a29b0e51f4c, type: 3}
+      propertyPath: m_Navigation.m_Mode
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

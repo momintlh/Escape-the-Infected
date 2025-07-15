@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering.UI;
 using UnityEngine.UI;
+using System.Collections;
+
 
 public class PlayerUIManager : MonoBehaviour
 {
@@ -10,6 +13,9 @@ public class PlayerUIManager : MonoBehaviour
     [SerializeField] private Button Slot2;
     [SerializeField] private Button Slot3;
 
+
+    private bool haveFlashBang = true;
+    private bool haveSyringe= true;
 
     private void Awake()
     {
@@ -26,12 +32,44 @@ public class PlayerUIManager : MonoBehaviour
     public void Slot2Selected()
     {
         EventSystem.current.SetSelectedGameObject(null);
-        Slot2.Select();
+        if (haveFlashBang)
+        {
+            Slot2.Select();
+        }
+        else
+        {
+            StartCoroutine(NoItem(Slot2)); 
+        }
+
     }
     public void Slot3Selected()
     {
         EventSystem.current.SetSelectedGameObject(null);
-        Slot3.Select();
+        if (haveSyringe)
+        {
+            Slot3.Select();
+        }
+        else
+        {
+            StartCoroutine(NoItem(Slot3));
+        }
     }
+
+
+    public void FlashBangItemFalse()
+    {
+       haveFlashBang = false;
+    }
+    public void SyringeItemFalse()
+    {
+        haveSyringe = false;
+    }
+    IEnumerator NoItem(Button button)
+    {
+        button.image.color = Color.red;
+        yield return new WaitForSeconds(0.5f);
+        button.image.color = Color.white;
+    }
+
 
 }

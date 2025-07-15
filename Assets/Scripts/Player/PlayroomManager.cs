@@ -128,7 +128,7 @@ public class PlayroomManager : MonoBehaviour
     public void HandleFlashbangThrow(string data, string sender)
     {
         var senderObj = PlayerDict[data];
-        senderObj.GetComponent<Player_Jan>().FlashbangThrow();  
+        senderObj.GetComponent<Player_Jan>().UseItem();  
     }
 
     public void HandleAdrenalineActive(string data, string sender)
