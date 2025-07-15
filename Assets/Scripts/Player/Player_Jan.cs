@@ -28,6 +28,10 @@ public class Player_Jan : MonoBehaviour
     //PlayroomKit _playroomKit;
 
 
+    private int FlashBangCount;
+    private int SyringeCount;
+
+
     private void Start()
     {
         bloodVisionMat.SetFloat(VIGNETTE_INTENSITY, 0);
@@ -38,8 +42,8 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(false);
-       // _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
-        
+        // _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
+        FlashBangCount = 0;
     }
 
     private void AssignEvents()
@@ -53,17 +57,35 @@ public class Player_Jan : MonoBehaviour
 
     private void InputSystem_OnSlotChange3(object sender, System.EventArgs e)
     {
-        flashLight.gameObject.SetActive(false);
-        flashBangPos.gameObject.SetActive(false);
-        adrenalineShotPos.gameObject.SetActive(true);
+        if(SyringeCount == 2)
+        {
+            PlayerUIManager.instance.SyringeItemFalse();
+        }
+        else
+        {
+            flashLight.gameObject.SetActive(false);
+            flashBangPos.gameObject.SetActive(false);
+            adrenalineShotPos.gameObject.SetActive(true);
+        }
+        PlayerUIManager.instance.Slot3Selected();
         //_playroomKit.RpcCall("AdrenalineActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnSlotChange2(object sender, System.EventArgs e)
     {
-        flashLight.gameObject.SetActive(false);
-        adrenalineShotPos.gameObject.SetActive(false);
-        flashBangPos.gameObject.SetActive(true);
+        if (FlashBangCount == 2)
+        {
+            PlayerUIManager.instance.FlashBangItemFalse();
+        }
+        else
+        {
+            flashLight.gameObject.SetActive(false);
+            adrenalineShotPos.gameObject.SetActive(false);
+            flashBangPos.gameObject.SetActive(true);
+        }
+
+        PlayerUIManager.instance.Slot2Selected();
+
         //_playroomKit.RpcCall("FlashbangActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
@@ -72,16 +94,18 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(true);
         adrenalineShotPos.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
-      //  _playroomKit.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        PlayerUIManager.instance.Slot1Selected();
+        //  _playroomKit.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnUseItemPlayer(object sender, System.EventArgs e)
     {
-        FlashbangThrow();
-        //_playroomKit.RpcCall("FlashbangThrow", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        UseItem();
+
+        //_playroomKit.RpcCall("UseItem", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
-    public void FlashbangThrow()
+    public void UseItem()
     {
         if (flashBangPos.gameObject.activeSelf)
         {
@@ -94,9 +118,12 @@ public class Player_Jan : MonoBehaviour
             {
                 flashRb.AddForce(flashBangPos.forward * throwForce, ForceMode.VelocityChange);
             }
+            FlashBangCount++;
+            flashBangPos.gameObject.SetActive(false);
         }
-        else if(adrenalineShotPos.gameObject.activeSelf)
+        else if (adrenalineShotPos.gameObject.activeSelf)
         {
+            SyringeCount++;
             StartCoroutine(UseAdrenalineShot());
         }
         else
@@ -118,7 +145,7 @@ public class Player_Jan : MonoBehaviour
             if (hit.collider.CompareTag("Door"))
             {
                 int doorIndex = PlayroomManager.doors.IndexOf(hit.collider.gameObject);
-             //   _playroomKit.RpcCall("ToggleDoor", doorIndex, PlayroomKit.RpcMode.ALL);
+                //   _playroomKit.RpcCall("ToggleDoor", doorIndex, PlayroomKit.RpcMode.ALL);
             }
         }
     }
@@ -142,9 +169,9 @@ public class Player_Jan : MonoBehaviour
         firstPersonController.SprintSpeed += speedBoost;
 
         yield return new WaitForSeconds(3.0f);
-
+        adrenalineShotPos.gameObject.SetActive(false);
         firstPersonController.SprintSpeed = original;
-        
+
         isAdrenalineActive = false;
     }
 
@@ -152,7 +179,7 @@ public class Player_Jan : MonoBehaviour
     {
         return flashLight.gameObject;
     }
-    
+
     public GameObject GetFlashbang()
     {
         return flashBangPos.gameObject;
