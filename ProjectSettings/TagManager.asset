@@ -10,6 +10,7 @@ TagManager:
   - WhiteScreen
   - Infected
   - FootPrint
+  - Clue
   layers:
   - Default
   - TransparentFX
