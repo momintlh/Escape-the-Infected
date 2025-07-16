@@ -2,34 +2,37 @@ using UnityEngine;
 
 public class InfectedAnimation : MonoBehaviour
 {
-    
     [SerializeField] private Animator animator;
+    [SerializeField] private float maxSpeed = 6.0f; // Set to SprintSpeed
+    [SerializeField] private float smoothing = 10f;
+    private float currentAnimSpeed = 0f;
+
+    private Vector3 lastPosition;
+
+    private void Start()
+    {
+        lastPosition = transform.position;
+    }
 
     private void Update()
     {
-        WalkAnim();
+        UpdateSpeedAnim();
     }
-    private void WalkAnim()
+
+    private void UpdateSpeedAnim()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+        Vector3 currentPosition = transform.position;
+        Vector3 delta = currentPosition - lastPosition;
+        delta.y = 0; // Ignore vertical movement
 
-        Vector3 input = new Vector3(horizontal, 0, vertical);
-        float inputMagnitude = input.normalized.magnitude; // Will always be 0 to 1
+        float speed = delta.magnitude / Time.deltaTime; // units per second
+        float normalizedSpeed = Mathf.Clamp01(speed / maxSpeed);
 
-        // Walk = 1, Run = 2
-        float speed = inputMagnitude;
+        currentAnimSpeed = Mathf.Lerp(currentAnimSpeed, normalizedSpeed, smoothing * Time.deltaTime);
+        SetSpeed(currentAnimSpeed);
 
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            speed = inputMagnitude * 2f;
-        }
-
-        Debug.Log("Speed: " + speed);
-        SetSpeed(speed);
+        lastPosition = currentPosition;
     }
-
-
 
     public void SetSpeed(float speed)
     {
