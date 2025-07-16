@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 358eeeabdb9cfc541bf01f7f534265bd
+timeCreated: 1510107796
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110022
+  packageName: Voicebox
+  packageVersion: 1.1
+  assetPath: Assets/Voicebox/3dobjects/Materials/voicebox-LED.mat
+  uploadId: 524402

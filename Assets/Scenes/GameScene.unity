@@ -844,10 +844,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Clue (1)
       objectReference: {fileID: 0}
-    - target: {fileID: 8774867236189382101, guid: 7884be928138f6f46a144cc29f43e340, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 64a7e7bae43a34d4c83b56399b1d2ee3, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5434,6 +5430,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4910665019897763877, guid: 8712dcea02cd09b439c235519ac999ed, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 561d7eb358a7e284ba9c409def9ae56a
+timeCreated: 1516842029
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110022
+  packageName: Voicebox
+  packageVersion: 1.1
+  assetPath: Assets/Voicebox/Prefabs/voicebox.prefab
+  uploadId: 524402
