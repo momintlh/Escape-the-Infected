@@ -22,6 +22,7 @@ public class Infected : MonoBehaviour
 
     void Start()
     {
+        playerCamera = Camera.main;
         inputSystem = GetComponent<StarterAssetsInputs>();
         firstPersonController = GetComponent<FirstPersonController>();
         bloodVisionMat.SetFloat(VIGNETTE_INTENSITY, currentIntensity);
