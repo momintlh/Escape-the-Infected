@@ -25,6 +25,10 @@ public class Player_Jan : MonoBehaviour
     private FirstPersonController firstPersonController;
     private bool isDoorOpen;
     private bool isAdrenalineActive;
+
+    //Clue
+    private bool isPickingObject;
+    private GameObject pickedClueObject;
     //PlayroomKit _playroomKit;
 
 
@@ -160,8 +164,15 @@ public class Player_Jan : MonoBehaviour
     private void InputSystem_OnInteractPlayer(object sender, System.EventArgs e)
     {
         CheckForGameObjectInView();
+        if(isPickingObject)
+        {
+            Destroy(pickedClueObject);
+            isPickingObject = false;
+            pickedClueObject = null;
+        }
     }
 
+    // Adrenaline Shot Coroutine
     IEnumerator UseAdrenalineShot()
     {
         if (isAdrenalineActive)
@@ -194,5 +205,26 @@ public class Player_Jan : MonoBehaviour
     public GameObject GetAdrenaline()
     {
         return adrenalineShotPos.gameObject;
+    }
+
+
+    // Trigger enter and exist
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("Clue"))
+        {
+            isPickingObject = true;
+            pickedClueObject = other.gameObject;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Clue"))
+        {
+            isPickingObject = false;
+            pickedClueObject = null;
+        }
     }
 }
