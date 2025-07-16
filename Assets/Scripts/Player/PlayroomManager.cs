@@ -12,7 +12,9 @@ public class PlayroomManager : MonoBehaviour
     public static PlayroomManager Instance{get; private set;}
     private PlayroomKit _playroomKit;
     [SerializeField]
-    GameObject defaultPrefab;
+    private GameObject defaultPrefab;
+    [SerializeField]
+    private GameObject monsterPrefab;
 
     private CinemachineVirtualCamera virtualCamera;
     private List<Vector3> availableSpawnPoints =  new List<Vector3>();
@@ -20,8 +22,10 @@ public class PlayroomManager : MonoBehaviour
     private static readonly List<PlayroomKit.Player> players = new();
     private static readonly List<GameObject> playerGameObjects = new();
     private static Dictionary<string, GameObject> PlayerDict = new();
+    private static Dictionary<string, bool> isMonster = new Dictionary<string, bool>();
     public static List<GameObject> doors = new();
     private bool spawned = false;
+    private bool monsterAssigned = false;
 
     private bool playerJoined = false;
 
@@ -42,7 +46,7 @@ public class PlayroomManager : MonoBehaviour
     }
 
     void FixedUpdate()
-    {
+     {
         if (spawned)
         {
             var myPlayer = _playroomKit.MyPlayer();
@@ -51,7 +55,9 @@ public class PlayroomManager : MonoBehaviour
             // Add bounds checking to prevent ArgumentOutOfRangeException
             if (myIndex >= 0 && myIndex < playerGameObjects.Count && myIndex < players.Count)
             {
-                var myObj = PlayerDict[myPlayer.id];
+                if (!PlayerDict.TryGetValue(myPlayer.id, out var myObj) || myObj == null)
+                return;
+
                 var fpc = myObj.GetComponent<FirstPersonController>();
                 fpc.JumpAndGravity();
                 fpc.GroundedCheck();
@@ -112,6 +118,7 @@ public class PlayroomManager : MonoBehaviour
             _playroomKit.RpcRegister("FlashbangThrow", HandleFlashbangThrow);
             _playroomKit.RpcRegister("AdrenalineActive", HandleAdrenalineActive);
             _playroomKit.RpcRegister("ToggleDoor", HandleToggleDoor);
+            _playroomKit.RpcRegister("AssignMonster", HandleAssignMonster);
             if (_playroomKit.IsHost())
             {
                 availableSpawnPoints = GetRandomizedSpawnPoints();
@@ -129,6 +136,30 @@ public class PlayroomManager : MonoBehaviour
     {
         var senderObj = PlayerDict[data];
         senderObj.GetComponent<Player_Jan>().FlashbangThrow();  
+    }
+
+    public void HandleAssignMonster(string data, string sender)
+    {
+        string monsterID = data;
+        Debug.Log($"Monster ID: {monsterID}");
+        Debug.Log($"My Player ID: {_playroomKit.MyPlayer().id}");    
+        if (!monsterAssigned)
+        {
+        for (int i = 0; i < players.Count; i++)
+        {
+            if (players[i].id == monsterID)
+            {
+                isMonster.Add(players[i].id, true);
+                Debug.Log($"Player {players[i].id} is a monster");
+            }
+            else
+            {
+                isMonster.Add(players[i].id, false);
+                Debug.Log($"Player {players[i].id} is not a monster");
+            }
+        }
+        }
+                monsterAssigned = true;
     }
 
     public void HandleAdrenalineActive(string data, string sender)
@@ -171,13 +202,13 @@ public class PlayroomManager : MonoBehaviour
     void spawnPlayer(PlayroomKit.Player player)
     {
         playerJoined = true;
-        
+        players.Add(player);
         Vector3 spawnPosition = Vector3.zero;
-        
-        // Host determines spawn position for all players
-        if (_playroomKit.IsHost())
+        Debug.Log($"Player {player.id} joined");
+        if (_playroomKit.IsHost() && !monsterAssigned)
         {
-            
+            string monsterID = AssignRoles();
+            _playroomKit.RpcCall("AssignMonster", monsterID, PlayroomKit.RpcMode.ALL);
             spawnPosition = availableSpawnPoints[^1];
             availableSpawnPoints.RemoveAt(availableSpawnPoints.Count - 1);
             player.SetState("position", spawnPosition);
@@ -188,18 +219,11 @@ public class PlayroomManager : MonoBehaviour
 
     }
 
-    void AssignRoles()
+    public string AssignRoles()
     {
-        if (playerGameObjects.Count == 0) return;
-        int monsterIndex = Random.Range(0, playerGameObjects.Count);
-        for (int i = 0; i < playerGameObjects.Count; i++)
-        {
-            // var playerScript = playerGameObjects[i].GetComponent<Player>();
-            // if (playerScript != null && playerScript.Info != null)
-            // {
-            //     playerScript.Info.Type = (i == monsterIndex) ? PlayerType.Monster : PlayerType.Human;
-            // }
-        }
+        if (players.Count == 0) return "";
+        int monsterIndex = Random.Range(0, players.Count);
+        return players[monsterIndex].id;
     }
  
 
@@ -231,11 +255,20 @@ public class PlayroomManager : MonoBehaviour
     // Coroutine for non-host player instantiation after delay
     private IEnumerator SpawnNonHostPlayerAfterDelay(PlayroomKit.Player player)
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(5f);
         Vector3 spawnPosition = player.GetState<Vector3>("position");
-        GameObject playerObj = Instantiate(defaultPrefab, spawnPosition, Quaternion.identity);
+        GameObject playerObj;
+        if (isMonster[player.id])
+        {
+            playerObj = Instantiate(monsterPrefab, spawnPosition, Quaternion.identity);
+            Debug.Log($"Monster instantiated for player {player.id}");
+        }
+        else
+        {
+            playerObj = Instantiate(defaultPrefab, spawnPosition, Quaternion.identity);
+            Debug.Log($"Player instantiated for player {player.id}");
+        }
         playerGameObjects.Add(playerObj);
-        players.Add(player);
         PlayerDict.Add(player.id, playerObj);
         spawned = true;
         virtualCamera = PlayerDict[player.id].GetComponentInChildren<CinemachineVirtualCamera>();
