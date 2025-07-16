@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Rendering.UI;
 using UnityEngine.UI;
 using System.Collections;
+using TMPro;
 
 
 public class PlayerUIManager : MonoBehaviour
@@ -12,9 +13,9 @@ public class PlayerUIManager : MonoBehaviour
     [SerializeField] private Button Slot1;
     [SerializeField] private Button Slot2;
     [SerializeField] private Button Slot3;
-
     [SerializeField] private GameObject gameOverPanel;
-
+    [SerializeField] private TextMeshProUGUI gameOverTimerText;
+    
     private bool haveFlashBang = true;
     private bool haveSyringe = true;
 
@@ -83,4 +84,8 @@ public class PlayerUIManager : MonoBehaviour
         gameOverPanel.SetActive(false);
     }
 
+    public TextMeshProUGUI GetGameOverTimerText()
+    {
+        return gameOverTimerText;
+    }
 }
