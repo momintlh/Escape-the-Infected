@@ -160,6 +160,14 @@ public class PlayroomManager : MonoBehaviour
         }
         }
                 monsterAssigned = true;
+        if (_playroomKit.MyPlayer().id == monsterID)
+        {
+            GameObject.FindWithTag("PlayerCanvas").SetActive(false);
+        }
+        else
+        {
+            GameObject.FindWithTag("InfectedCanvas").SetActive(false);
+        }
     }
 
     public void HandleAdrenalineActive(string data, string sender)
@@ -272,7 +280,6 @@ public class PlayroomManager : MonoBehaviour
         PlayerDict.Add(player.id, playerObj);
         spawned = true;
         virtualCamera = PlayerDict[player.id].GetComponentInChildren<CinemachineVirtualCamera>();
-
         bool isLocalPlayer = (player.id == _playroomKit.MyPlayer().id);
         var input = playerObj.GetComponent<PlayerInput>();
         if (!isLocalPlayer && input != null)

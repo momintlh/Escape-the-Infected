@@ -29,7 +29,7 @@ public class Player_Jan : MonoBehaviour
     //Clue
     private bool isPickingObject;
     private GameObject pickedClueObject;
-    //PlayroomKit _playroomKit;
+    PlayroomKit _playroomKit;
 
 
     private int FlashBangCount;
@@ -46,7 +46,7 @@ public class Player_Jan : MonoBehaviour
         flashLight.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
         adrenalineShotPos.gameObject.SetActive(false);
-        // _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
+        _playroomKit = PlayroomManager.Instance.GetPlayroomKit();
         FlashBangCount = 0;
     }
 
@@ -79,7 +79,7 @@ public class Player_Jan : MonoBehaviour
             adrenalineShotPos.gameObject.SetActive(true);
         }
         PlayerUIManager.instance.Slot3Selected();
-        //_playroomKit.RpcCall("AdrenalineActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        _playroomKit.RpcCall("AdrenalineActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnSlotChange2(object sender, System.EventArgs e)
@@ -97,7 +97,7 @@ public class Player_Jan : MonoBehaviour
 
         PlayerUIManager.instance.Slot2Selected();
 
-        //_playroomKit.RpcCall("FlashbangActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        _playroomKit.RpcCall("FlashbangActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnSlotChange1(object sender, System.EventArgs e)
@@ -106,14 +106,14 @@ public class Player_Jan : MonoBehaviour
         adrenalineShotPos.gameObject.SetActive(false);
         flashBangPos.gameObject.SetActive(false);
         PlayerUIManager.instance.Slot1Selected();
-        //  _playroomKit.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+         _playroomKit.RpcCall("FlashlightActive", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     private void InputSystem_OnUseItemPlayer(object sender, System.EventArgs e)
     {
         UseItem();
 
-        //_playroomKit.RpcCall("UseItem", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
+        _playroomKit.RpcCall("UseItem", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.OTHERS);
     }
 
     public void UseItem()
@@ -156,7 +156,7 @@ public class Player_Jan : MonoBehaviour
             if (hit.collider.CompareTag("Door"))
             {
                 int doorIndex = PlayroomManager.doors.IndexOf(hit.collider.gameObject);
-                //   _playroomKit.RpcCall("ToggleDoor", doorIndex, PlayroomKit.RpcMode.ALL);
+                  _playroomKit.RpcCall("ToggleDoor", doorIndex, PlayroomKit.RpcMode.ALL);
             }
         }
     }
