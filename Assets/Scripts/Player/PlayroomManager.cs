@@ -15,6 +15,8 @@ public class PlayroomManager : MonoBehaviour
     private GameObject defaultPrefab;
     [SerializeField]
     private GameObject monsterPrefab;
+    [SerializeField]
+    private int clueCount = 0;
 
     private CinemachineVirtualCamera virtualCamera;
     private List<Vector3> availableSpawnPoints =  new List<Vector3>();
@@ -120,12 +122,19 @@ public class PlayroomManager : MonoBehaviour
             _playroomKit.RpcRegister("AdrenalineActive", HandleAdrenalineActive);
             _playroomKit.RpcRegister("ToggleDoor", HandleToggleDoor);
             _playroomKit.RpcRegister("AssignMonster", HandleAssignMonster);
+            _playroomKit.RpcRegister("PickClue", HandlePickClue);
             if (_playroomKit.IsHost())
             {
                 availableSpawnPoints = GetRandomizedSpawnPoints();
             }
             Time.timeScale = 1.0f;
         });
+    }
+
+    public void HandlePickClue(string data, string sender)
+    {
+        clueCount++;
+        Debug.Log($"Clue Count: {clueCount}");
     }
 
     public void HandleToggleDoor(string data, string sender)
