@@ -15,6 +15,7 @@ public class Infected : MonoBehaviour
     private float interactDistance = 3f;
     private StarterAssetsInputs inputSystem;
     private FirstPersonController firstPersonController;
+    private InfectedAnimation infectedAnimation;
     private float currentIntensity = 20;
     private float currentPower = 7;
 
@@ -25,6 +26,7 @@ public class Infected : MonoBehaviour
         playerCamera = Camera.main;
         inputSystem = GetComponent<StarterAssetsInputs>();
         firstPersonController = GetComponent<FirstPersonController>();
+        infectedAnimation = GetComponent<InfectedAnimation>();
         bloodVisionMat.SetFloat(VIGNETTE_INTENSITY, currentIntensity);
         AssignsEvents();
         StartCoroutine(IncreaseIntensityEveryMinute());
@@ -43,6 +45,8 @@ public class Infected : MonoBehaviour
             PlayerUIManager.instance.ShowGameOver();
             LocalGameManager.Instance.GameOver();
         }
+        infectedAnimation.AttackAnim();
+
     }
 
 
