@@ -38,4 +38,9 @@ public class InfectedAnimation : MonoBehaviour
     {
         animator.SetFloat("Speed", speed);
     }
+
+    public void AttackAnim()
+    {
+        animator.SetTrigger("Attack");
+    }
 }
