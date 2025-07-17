@@ -16,7 +16,8 @@ public class PlayroomManager : MonoBehaviour
     [SerializeField]
     private GameObject monsterPrefab;
     [SerializeField]
-    private int clueCount = 0;
+    public static int maxClueCount = 5;
+    
 
     private CinemachineVirtualCamera virtualCamera;
     private List<Vector3> availableSpawnPoints =  new List<Vector3>();
@@ -28,6 +29,7 @@ public class PlayroomManager : MonoBehaviour
     public static List<GameObject> doors = new();
     private bool spawned = false;
     private bool monsterAssigned = false;
+    public static int clueCount = 0;
 
     private bool playerJoined = false;
 
