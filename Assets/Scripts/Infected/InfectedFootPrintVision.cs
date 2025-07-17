@@ -20,6 +20,7 @@ public class InfectedFootPrintVision : MonoBehaviour
         }
 
         inputSystem = GetComponent<StarterAssetsInputs>();
+        if(InfectedUI.Instance != null) 
         coolDownImage = InfectedUI.Instance.GetTimer();
 
         inputSystem.OnInteractionPlayer += InputSystem_OnInteractionPlayer; 
