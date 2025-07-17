@@ -47,6 +47,8 @@ public class Infected : MonoBehaviour
         }
         infectedAnimation.AttackAnim();
 
+        SoundManager.PlaySound(SoundType.Attacking);
+
     }
 
 
