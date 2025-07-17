@@ -46,7 +46,9 @@ public class Infected : MonoBehaviour
             LocalGameManager.Instance.GameOver();
         }
         infectedAnimation.AttackAnim();
+
         SoundManager.PlaySound(SoundType.Attacking);
+
     }
 
 

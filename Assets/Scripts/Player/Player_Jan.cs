@@ -156,7 +156,7 @@ public class Player_Jan : MonoBehaviour
             if (hit.collider.CompareTag("Door"))
             {
                 int doorIndex = PlayroomManager.doors.IndexOf(hit.collider.gameObject);
-                  _playroomKit.RpcCall("ToggleDoor", doorIndex, PlayroomKit.RpcMode.ALL);
+                _playroomKit.RpcCall("ToggleDoor", doorIndex, PlayroomKit.RpcMode.ALL);
             }
         }
     }
@@ -169,6 +169,7 @@ public class Player_Jan : MonoBehaviour
             Destroy(pickedClueObject);
             isPickingObject = false;
             pickedClueObject = null;
+            _playroomKit.RpcCall("PickClue", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.ALL);
         }
     }
 
