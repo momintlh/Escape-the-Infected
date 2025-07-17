@@ -33,6 +33,7 @@ public class PlayroomManager : MonoBehaviour
     {
         _playroomKit = new PlayroomKit();
         Instance = this;
+        Time.timeScale = 0.0f;
     }
     void Start()
     {
@@ -123,6 +124,7 @@ public class PlayroomManager : MonoBehaviour
             {
                 availableSpawnPoints = GetRandomizedSpawnPoints();
             }
+            Time.timeScale = 1.0f;
         });
     }
 
