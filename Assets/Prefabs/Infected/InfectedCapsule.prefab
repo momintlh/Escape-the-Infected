@@ -207,6 +207,7 @@ GameObject:
   - component: {fileID: 6215538819276502273}
   - component: {fileID: 2879305528015366273}
   - component: {fileID: 1951222217952810074}
+  - component: {fileID: 5184425281228675135}
   m_Layer: 8
   m_Name: InfectedCapsule
   m_TagString: Infected
@@ -455,6 +456,21 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &5184425281228675135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7518276414683596167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d786cbf1c0cf5df40a92cc345b21b262, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 0}
+  maxSpeed: 6
+  smoothing: 10
 --- !u!1 &7584585967498682759
 GameObject:
   m_ObjectHideFlags: 0

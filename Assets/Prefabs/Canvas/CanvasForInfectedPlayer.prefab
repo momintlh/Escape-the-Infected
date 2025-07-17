@@ -262,9 +262,10 @@ GameObject:
   - component: {fileID: 74718696818102716}
   - component: {fileID: 4277344143631535078}
   - component: {fileID: 2203361639344822774}
+  - component: {fileID: 3562223612783646774}
   m_Layer: 5
   m_Name: CanvasForInfectedPlayer
-  m_TagString: Untagged
+  m_TagString: InfectedCanvas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -353,6 +354,21 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
 --- !u!114 &2203361639344822774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3393512466689112253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bced74d4142e62429c54918764fd180, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timer: {fileID: 4072160983388672705}
+  gameOverTimerText: {fileID: 7494278453304395639}
+  gameOverPanel: {fileID: 6165791841382406926}
+--- !u!114 &3562223612783646774
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
