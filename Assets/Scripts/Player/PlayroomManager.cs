@@ -21,7 +21,9 @@ public class PlayroomManager : MonoBehaviour
 
     private CinemachineVirtualCamera virtualCamera;
     private List<Vector3> availableSpawnPoints =  new List<Vector3>();
+    private List<Vector3> availableClueLocations = new List<Vector3>();
     private bool spawnPointsInitialized = false;
+    private bool clueLocationsInitialized = false;
     private static readonly List<PlayroomKit.Player> players = new();
     private static readonly List<GameObject> playerGameObjects = new();
     private static Dictionary<string, GameObject> PlayerDict = new();
@@ -128,6 +130,7 @@ public class PlayroomManager : MonoBehaviour
             if (_playroomKit.IsHost())
             {
                 availableSpawnPoints = GetRandomizedSpawnPoints();
+                availableClueLocations = SetClueLocations();
             }
             Time.timeScale = 1.0f;
         });
@@ -247,7 +250,31 @@ public class PlayroomManager : MonoBehaviour
         return players[monsterIndex].id;
     }
  
-
+    public List<Vector3> SetClueLocations()
+    {
+        List<GameObject> allClues = GameObject.FindGameObjectsWithTag("Clue").ToList();
+        // Shuffle the clues
+        for (int i = 0; i < allClues.Count; i++)
+        {
+            int rand = Random.Range(i, allClues.Count);
+            (allClues[i], allClues[rand]) = (allClues[rand], allClues[i]);
+        }
+        List<Vector3> activeCluePositions = new List<Vector3>();
+        for (int i = 0; i < allClues.Count; i++)
+        {
+            if (i < maxClueCount + 1)
+            {
+                allClues[i].SetActive(true);
+                activeCluePositions.Add(allClues[i].transform.position);
+            }
+            else
+            {
+                allClues[i].SetActive(false);
+            }
+        }
+        return activeCluePositions;
+    }
+    
     public List<Vector3> GetRandomizedSpawnPoints()
     {
         if (!spawnPointsInitialized)
