@@ -213,11 +213,11 @@ public class PlayroomManager : MonoBehaviour
                 monsterAssigned = true;
         if (_playroomKit.MyPlayer().id == monsterID)
         {
-            GameObject.FindWithTag("PlayerCanvas").SetActive(false);
+            GameObject.FindWithTag("PlayerCanvas").SetActive(true);
         }
         else
         {
-            GameObject.FindWithTag("InfectedCanvas").SetActive(false);
+            GameObject.FindWithTag("InfectedCanvas").SetActive(true);
         }
     }
 
