@@ -166,10 +166,10 @@ public class Player_Jan : MonoBehaviour
         CheckForGameObjectInView();
         if(isPickingObject)
         {
+            _playroomKit.RpcCall("PickClue", pickedClueObject.name, PlayroomKit.RpcMode.ALL);
             Destroy(pickedClueObject);
             isPickingObject = false;
             pickedClueObject = null;
-            _playroomKit.RpcCall("PickClue", _playroomKit.MyPlayer().id, PlayroomKit.RpcMode.ALL);
         }
     }
 

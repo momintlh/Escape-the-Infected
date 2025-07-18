@@ -175,6 +175,7 @@ public class PlayroomManager : MonoBehaviour
     {
         clueCount++;
         Debug.Log($"Clue Count: {clueCount}");
+        Destroy(GameObject.Find(data));
     }
 
     public void HandleToggleDoor(string data, string sender)
