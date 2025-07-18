@@ -5649,7 +5649,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1824217503633254899, guid: 1b30fa3a265114a45a7e23165a20aecc, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4611920177403363027, guid: 1b30fa3a265114a45a7e23165a20aecc, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6822,6 +6822,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1824333671}
   m_SourcePrefab: {fileID: 100100000, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
+--- !u!20 &1952455196 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 9005220659476430821, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
+  m_PrefabInstance: {fileID: 1952455195}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1959148985
 GameObject:
   m_ObjectHideFlags: 0
@@ -7132,6 +7137,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3763975630004563600, guid: 34d29bc538bc65942b86202f24e2e47b, type: 3}
+      propertyPath: playerCamera
+      value: 
+      objectReference: {fileID: 1952455196}
     - target: {fileID: 7518276414683596167, guid: 34d29bc538bc65942b86202f24e2e47b, type: 3}
       propertyPath: m_Name
       value: InfectedCapsule
@@ -7819,7 +7828,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5017831087795762444, guid: 4e275e80c72b63d44884e69d318eb632, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7089596283646900902, guid: 4e275e80c72b63d44884e69d318eb632, type: 3}
       propertyPath: m_LocalPosition.x

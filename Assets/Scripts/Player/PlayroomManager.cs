@@ -21,7 +21,7 @@ public class PlayroomManager : MonoBehaviour
 
     private CinemachineVirtualCamera virtualCamera;
     private List<Vector3> availableSpawnPoints =  new List<Vector3>();
-    private List<Vector3> availableClueLocations = new List<Vector3>();
+    private List<GameObject> availableClues = new List<GameObject>();
     private bool spawnPointsInitialized = false;
     private bool clueLocationsInitialized = false;
     private static readonly List<PlayroomKit.Player> players = new();
@@ -127,15 +127,50 @@ public class PlayroomManager : MonoBehaviour
             _playroomKit.RpcRegister("ToggleDoor", HandleToggleDoor);
             _playroomKit.RpcRegister("AssignMonster", HandleAssignMonster);
             _playroomKit.RpcRegister("PickClue", HandlePickClue);
+            _playroomKit.RpcRegister("SetClueLocations", HandleSetClueLocations);
+            availableClues = SortClues();
             if (_playroomKit.IsHost())
             {
+                List<int> RandomClueIndices = RandomizeClueIndices(availableClues);
+                string RandomClueIndicesString = string.Join(",", RandomClueIndices);
                 availableSpawnPoints = GetRandomizedSpawnPoints();
-                availableClueLocations = SetClueLocations();
+                _playroomKit.RpcCall("SetClueLocations", RandomClueIndicesString, PlayroomKit.RpcMode.ALL);
             }
             Time.timeScale = 1.0f;
         });
     }
 
+    private List<int> RandomizeClueIndices(List<GameObject> clues)
+    {
+                // Get a list of indices
+        List<int> clueIndices = Enumerable.Range(0, clues.Count).ToList();
+
+        for (int i = 0; i < clueIndices.Count; i++)
+        {
+            int rand = Random.Range(i, clueIndices.Count);
+            (clueIndices[i], clueIndices[rand]) = (clueIndices[rand], clueIndices[i]);
+        }
+        // Select maxClueCount + 1 random indices
+        return clueIndices.Take(maxClueCount + 1).ToList();
+    }
+
+    public void HandleSetClueLocations(string data, string sender)
+    {
+        List<int> RandomClueIndices = data.Split(',').Select(int.Parse).ToList();
+
+        for (int i = 0; i < availableClues.Count; i++)
+        {
+            if (RandomClueIndices.Contains(i))
+            {
+                availableClues[i].SetActive(true);
+            }
+            else
+            {
+                availableClues[i].SetActive(false);
+            }
+        }
+        Debug.Log($"Clue Locations Set: {string.Join(",", RandomClueIndices)}");
+    }
     public void HandlePickClue(string data, string sender)
     {
         clueCount++;
@@ -250,29 +285,13 @@ public class PlayroomManager : MonoBehaviour
         return players[monsterIndex].id;
     }
  
-    public List<Vector3> SetClueLocations()
+    public List<GameObject> SortClues()
     {
         List<GameObject> allClues = GameObject.FindGameObjectsWithTag("Clue").ToList();
-        // Shuffle the clues
-        for (int i = 0; i < allClues.Count; i++)
-        {
-            int rand = Random.Range(i, allClues.Count);
-            (allClues[i], allClues[rand]) = (allClues[rand], allClues[i]);
-        }
-        List<Vector3> activeCluePositions = new List<Vector3>();
-        for (int i = 0; i < allClues.Count; i++)
-        {
-            if (i < maxClueCount + 1)
-            {
-                allClues[i].SetActive(true);
-                activeCluePositions.Add(allClues[i].transform.position);
-            }
-            else
-            {
-                allClues[i].SetActive(false);
-            }
-        }
-        return activeCluePositions;
+        // Sort all clues (by name for determinism, or another property if needed)
+        allClues.Sort((a, b) => a.name.CompareTo(b.name));
+
+        return allClues;
     }
     
     public List<Vector3> GetRandomizedSpawnPoints()
