@@ -9,7 +9,7 @@ public class LocalGameManager : MonoBehaviour
     public static LocalGameManager Instance { get; private set; }
 
     public event EventHandler OnGameOver;
-
+    private LocalGameManager _localGameManager;
     private TextMeshProUGUI playerGameOverTimer;
     private TextMeshProUGUI infectedGameOverTimer;
 
@@ -81,5 +81,9 @@ public class LocalGameManager : MonoBehaviour
         OnGameOver?.Invoke(this, EventArgs.Empty);
     }
 
+    public LocalGameManager GetLocalGameManager()
+    {
+        return _localGameManager;
+    }
 
 }

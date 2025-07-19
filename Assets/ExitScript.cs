@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class ExitScript : MonoBehaviour
 {
-    
+    LocalGameManager _localGameManager;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        _localGameManager = LocalGameManager.Instance.GetLocalGameManager();
     }
 
     // Update is called once per frame
@@ -18,13 +18,9 @@ public class ExitScript : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (PlayroomManager.clueCount >= PlayroomManager.maxClueCount)
+        if (PlayroomManager.clueCount >= PlayroomManager.maxClueCount && other.CompareTag("Player"))
         {
-            Debug.Log("You win!");
-        }
-        if (other.CompareTag("Player"))
-        {
-            Destroy(other.gameObject);
+            _localGameManager.GameOver();
         }
     }
 }
