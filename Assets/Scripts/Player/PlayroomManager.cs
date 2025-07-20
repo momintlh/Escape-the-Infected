@@ -128,6 +128,8 @@ public class PlayroomManager : MonoBehaviour
             _playroomKit.RpcRegister("AssignMonster", HandleAssignMonster);
             _playroomKit.RpcRegister("PickClue", HandlePickClue);
             _playroomKit.RpcRegister("SetClueLocations", HandleSetClueLocations);
+            _playroomKit.RpcRegister("AttackAnimation", HandleAttackAnimation);
+            _playroomKit.RpcRegister("KillPlayer", HandleKillPlayer);
             availableClues = SortClues();
             if (_playroomKit.IsHost())
             {
@@ -139,7 +141,15 @@ public class PlayroomManager : MonoBehaviour
             Time.timeScale = 1.0f;
         });
     }
-
+    public void HandleAttackAnimation(string data, string sender)
+    {
+        var senderObj = PlayerDict[sender];
+        senderObj.GetComponent<InfectedAnimation>().AttackAnim();
+    }
+    public void HandleKillPlayer(string data, string sender)
+    {
+        RemovePlayer(data);
+    }
     private List<int> RandomizeClueIndices(List<GameObject> clues)
     {
                 // Get a list of indices
@@ -385,6 +395,16 @@ public class PlayroomManager : MonoBehaviour
     public List<GameObject> GetAllDoors()
     {
         return GameObject.FindGameObjectsWithTag("Door").ToList();
+    }
+
+    public static string GetPlayerIdFromGameObject(GameObject obj)
+    {
+        foreach (var kvp in PlayerDict)
+        {
+            if (kvp.Value == obj)
+                return kvp.Key;
+        }
+        return null;
     }
 }   
 
