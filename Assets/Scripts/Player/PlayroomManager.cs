@@ -217,23 +217,22 @@ public class PlayroomManager : MonoBehaviour
             if (players[i].id == monsterID)
             {
                 isMonster.Add(players[i].id, true);
-                Debug.Log($"Player {players[i].id} is a monster");
             }
             else
             {
                 isMonster.Add(players[i].id, false);
-                Debug.Log($"Player {players[i].id} is not a monster");
             }
         }
-        }
+        
                 monsterAssigned = true;
         if (_playroomKit.MyPlayer().id == monsterID)
         {
-            GameObject.FindWithTag("PlayerCanvas").SetActive(true);
+            GameObject.FindWithTag("PlayerCanvas").SetActive(false);
         }
         else
         {
-            GameObject.FindWithTag("InfectedCanvas").SetActive(true);
+            GameObject.FindWithTag("InfectedCanvas").SetActive(false);
+        }
         }
     }
 
