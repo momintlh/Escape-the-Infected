@@ -92,11 +92,8 @@ public class Infected : MonoBehaviour
         {
             if (hit.collider.CompareTag("Door"))
             {
-                DoorAnimtion doorAnim = hit.collider.GetComponent<DoorAnimtion>();
-                if (doorAnim != null)
-                {
-                    doorAnim.ToggleDoor();
-                }
+                int doorIndex = PlayroomManager.doors.IndexOf(hit.collider.gameObject);
+                _playroomKit.RpcCall("ToggleDoor", doorIndex, PlayroomKit.RpcMode.ALL);
             }
         }
     }

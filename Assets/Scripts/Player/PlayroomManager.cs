@@ -151,7 +151,7 @@ public class PlayroomManager : MonoBehaviour
     public void HandleKillPlayer(string data, string sender)
     {
         if (data == _playroomKit.MyPlayer().id)
-        _localGameManager.GameOver();
+        GameObject.FindWithTag("PlayerCanvas").GetComponent<PlayerUIManager>().ShowGameOver();
         else
         PlayerDict[data].SetActive(false);
     }
