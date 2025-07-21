@@ -34,6 +34,7 @@ public class PlayroomManager : MonoBehaviour
     public static int clueCount = 0;
 
     private bool playerJoined = false;
+    LocalGameManager _localGameManager;
 
     void Awake()
     {
@@ -45,6 +46,7 @@ public class PlayroomManager : MonoBehaviour
     {
         doors = GetAllDoors();
         InitializePlayroom();
+        _localGameManager = LocalGameManager.Instance.GetLocalGameManager();
     }
 
     void Update()
@@ -148,7 +150,10 @@ public class PlayroomManager : MonoBehaviour
     }
     public void HandleKillPlayer(string data, string sender)
     {
-        RemovePlayer(data);
+        if (data == _playroomKit.MyPlayer().id)
+        _localGameManager.GameOver();
+        else
+        PlayerDict[data].SetActive(false);
     }
     private List<int> RandomizeClueIndices(List<GameObject> clues)
     {
